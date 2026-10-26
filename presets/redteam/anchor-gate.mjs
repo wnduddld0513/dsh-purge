@@ -1,13 +1,13 @@
 /**
- * 红队锚点门。
+ * 레드팀 앵커 게이트.
  *
- * 只接梁神两阶段里这一段，不接两工具裁剪，也不切 PTC：
- * 第一段思考要像官方 Minimal（含 we、不含 let me）才放开输出上限；
- * 锚不住则最多 4 步。上限 1024 token，放开后拆掉，避免焊死在后面的请求上。
- * 上下文压缩把模型可见的表面整段重写，压缩后再关上，直到新的锚点或再走满 4 步。
+ * 량신(liangshen) 2단계 중 이 구간만 잇고, 두 도구 트리밍도, PTC 절단도 하지 않는다:
+ * 첫 사고 구간이 공식 Minimal 처럼 (we 는 포함, let me 는 불포함) 이어야 출력 상한을 푼다;
+ * 앵커를 못 잡으면 최대 4 스텝. 상한 1024 token 은 풀린 뒤 제거해 이후 요청에 고정되지 않게 한다.
+ * 컨텍스트 압축은 모델이 보는 표면을 통째로 다시 쓰므로, 압축 후 다시 잠그고 새 앵커가 생기거나 4 스텝을 다시 채울 때까지 유지한다.
  *
- * 红队指挥和执行角色一直看见原来的工具和人设。放开之后，整篇工作区说明
- * 改成点名文件路径，需要时再读。
+ * 레드팀 지휘와 실행 역할은 원래의 도구와 인격을 계속 본다. 풀린 뒤에는 워크스페이스 설명 전체를
+ * 파일 경로를 지목하는 방식으로 바꾸고, 필요할 때 읽는다.
  */
 export const name = 'dsh-purge-redteam-anchor'
 
@@ -17,7 +17,7 @@ export function countWord(text, regex) {
   return [...String(text ?? '').matchAll(regex)].length
 }
 
-/** 第一段思考：有 we、没有 let me，才算锚住。 */
+/** 첫 사고 구간: we 가 있고 let me 가 없어야 앵커로 인정한다. */
 export function classifyReasoning(text) {
   const trimmed = String(text ?? '').trim()
   const we = countWord(trimmed, /\bwe\b/gi)
@@ -34,14 +34,14 @@ export function hasAnchoredReasoning(content) {
 }
 
 /**
- * a) 用过工具且锚住，或已经走满 maxBootstrapSteps → 放开；
- * b) 用过工具，这一轮结束，且 promoteAfterFirstResponse → 放开；
- * c) 没有工具调用但已经回答，且 promoteAfterFirstResponse → 放开。
+ * a) 도구를 썼고 앵커가 잡혔거나, 이미 maxBootstrapSteps 를 다 채웠으면 → 해제;
+ * b) 도구를 썼고 이번 턴이 끝났으며 promoteAfterFirstResponse 이면 → 해제;
+ * c) 도구 호출은 없지만 이미 답했고 promoteAfterFirstResponse 이면 → 해제.
  */
 export function decidePromotion(state, config) {
   if (state.toolCalled && config.anchorGate !== true) return true
   if (state.toolCalled && config.anchorGate === true && (state.anchored || state.steps >= config.maxBootstrapSteps)) return true
-  /* 红队指挥首轮必调工具；英文思考常写 I need 过不了 we 锚，但仍应在少量 step 后放开输出上限 */
+  /* 레드팀 지휘는 첫 턴에 반드시 도구를 부른다; 영어 사고는 흔히 I need 로 시작해 we 앵커를 통과하지 못하지만, 여전히 소량의 step 뒤에 출력 상한을 풀어야 한다 */
   if (state.toolCalled && config.anchorGate === true && state.steps >= 1 && config.promoteAfterFirstResponse === true) return true
   if (state.toolCalled && config.anchorGate === true && config.promoteAfterFirstResponse === true && state.turnEnded) return true
   if (!state.toolCalled && state.responded && config.promoteAfterFirstResponse === true) return true

@@ -7,7 +7,7 @@
 <p align="center"><strong>Version 1.1.78</strong></p>
 
 <p align="center">
-  <em>DeepSeek Harness jailbreak: every model, swap prompts per model. Default prompt for 小码酱. Please star ⭐ If you build on this, see Attribution required.</em>
+  <em>DeepSeek Harness jailbreak: every model, swap prompts per model. Default prompt for "Little Code Sauce". Please star ⭐ If you build on this, see Attribution required.</em>
 </p>
 
 <p align="center">
@@ -26,7 +26,7 @@
 </p>
 
 <p align="center">
-  <a href="README.md">English</a> | <a href="README.zh-CN.md">中文</a>
+  <a href="README.md">English</a> | <a href="README.ko-KR.md">한국어</a>
 </p>
 
 ## A note from the author

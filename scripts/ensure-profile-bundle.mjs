@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /**
- * 装进 DSH profile 时补两笔（#154）：
+ * DSH profile 에 설치할 때 두 가지를 보충한다 (#154):
  *   1. dsh.profile.bundles
- *   2. 用户层 cordis.patch.yml 的本体 insert
- * pnpm add / dsh plugin add 都不会自己写 insert；市场会写，已有则跳过。
- * 在插件仓库里跑 pnpm install 则整段跳过。
+ *   2. 사용자 레이어 cordis.patch.yml 의 본문 insert
+ * pnpm add / dsh plugin add 는 insert 를 스스로 쓰지 않는다. 마켓은 쓰므로 이미 있으면 건너뛴다.
+ * 플러그인 저장소에서 pnpm install 을 돌리면 이 블록은 통째로 건너뛴다.
  */
 import fs from "node:fs";
 import path from "node:path";

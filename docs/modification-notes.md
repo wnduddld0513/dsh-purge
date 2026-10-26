@@ -1,32 +1,32 @@
-# dsh-purge 修改文档
+# dsh-purge 수정 문서
 
-## 修改日期：2026-10-13
-
----
-
-## 0. patch 89: SYSTEM_FIELD_EXTRACT（ALL_PATCHES，任何人 apply 自动生效）
-
-**问题**：0.2.0 把系统提示词作为 `role: "system"` 消息放在 messages 数组里，不像 0.1.1 放在单独的 `system` 字段。模型把系统提示词当对话历史质疑→第二轮拒绝/中途醒来拒绝。
-
-**改动**：在 `core.js` 的 `CODE_PATCHES` 数组末尾加 patch 89，patch agent-loop 的 `buildRequest`，把 `role: "system"` 消息从 `deriveMessages()` 提出来合并成 `system` 字段。
-
-**生效条件**：`file: ["agent-loop"]`，`optional: true`，`skipIfMarked: true`。0.2.0 匹配（`session.deriveMessages()`），0.1.1 不匹配（`this.session.deriveMessages()`）→ 只对 0.2.0 生效。
-
-**UI 展示**：`system_field_extracted` 字段加到 status/apply/override 端点，用户在面板看到 `system_field_extracted: true` 知道修复已生效。
-
-**还原**：patch 89 是 `ALL_PATCHES` 的一部分，`git checkout -- lib/core.js` 即可移除。apply 时如果 agent-loop 被重装（npm install），重新 apply 会重新打 patch。
+## 수정 날짜: 2026-10-13
 
 ---
 
-## 1. override 状态机修复（core.js）
+## 0. patch 89: SYSTEM_FIELD_EXTRACT(ALL_PATCHES, 누구든 apply 하면 자동 적용)
 
-### 1.1 isKeepableUserOverride 判断顺序（core.js:7844-7848）
+**문제**: 0.2.0 은 시스템 프롬프트를 `role: "system"` 메시지로 messages 배열에 넣습니다, 0.1.1 처럼 별도 `system` 필드에 두지 않습니다. 모델이 시스템 프롬프트를 대화 기록으로 착각해 의심합니다→두 번째 턴에서 거부하거나 도중에 깨어나 거부합니다.
 
-**问题**：`explicitSave:true` 在 `seedHash`/`overrideTextIsOurs` 检查之前 return，导致插件自己写的旧默认被误判成用户自改，新默认永远推不进去。
+**변경**: `core.js` 의 `CODE_PATCHES` 배열 끝에 patch 89 를 추가해 agent-loop 의 `buildRequest` 를 patch 하고, `role: "system"` 메시지를 `deriveMessages()` 에서 꺼내 `system` 필드로 병합합니다.
 
-**改动**：把 seedHash 和 overrideTextIsOurs 检查提到 explicitSave/customized 之前。
+**적용 조건**: `file: ["agent-loop"]`, `optional: true`, `skipIfMarked: true`. 0.2.0 은 일치(`session.deriveMessages()`), 0.1.1 은 불일치(`this.session.deriveMessages()`) → 0.2.0 에만 적용됩니다.
 
-**原代码**：
+**UI 표시**: `system_field_extracted` 필드를 status/apply/override 엔드포인트에 추가해, 사용자가 패널에서 `system_field_extracted: true` 를 보고 수정이 적용된 것을 알 수 있습니다.
+
+**복원**: patch 89 는 `ALL_PATCHES` 의 일부이므로 `git checkout -- lib/core.js` 로 제거할 수 있습니다. apply 할 때 agent-loop 가 재설치되면(npm install), 다시 apply 하면 patch 가 다시 적용됩니다.
+
+---
+
+## 1. override 상태 머신 수정 (core.js)
+
+### 1.1 isKeepableUserOverride 판정 순서 (core.js:7844-7848)
+
+**문제**: `explicitSave:true` 가 `seedHash`/`overrideTextIsOurs` 검사보다 먼저 return 해서, 플러그인이 직접 쓴 옛 기본값이 사용자 수정으로 오판되고, 새 기본값은 영영 반영되지 않습니다.
+
+**변경**: seedHash 와 overrideTextIsOurs 검사를 explicitSave/customized 앞으로 옮깁니다.
+
+**원본 코드**:
 ```js
 if (state.explicitSave === true) return true;
 if (state.customized === true) return true;
@@ -37,7 +37,7 @@ if (state.customized !== true && state.explicitSave !== true && overrideTextIsOu
 return true;
 ```
 
-**改后**：
+**변경 후**:
 ```js
 if (typeof state?.seedHash === "string" && state.seedHash === stamp) return false;
 if (overrideTextIsOurs(state, text)) return false;
@@ -46,13 +46,13 @@ if (state.customized === true) return true;
 return true;
 ```
 
-### 1.2 markOverrideCustomized 不记 hash（core.js:7797-7805）
+### 1.2 markOverrideCustomized 는 hash 를 기록하지 않음 (core.js:7797-7805)
 
-**问题**：`saveOverrideContent` 和 `installOverride` 都调 `markOverrideCustomized`，都记 hash，无法区分用户保存的还是插件写的。
+**문제**: `saveOverrideContent` 와 `installOverride` 가 모두 `markOverrideCustomized` 를 호출하고 모두 hash 를 기록해서, 사용자가 저장한 것인지 플러그인이 쓴 것인지 구분할 수 없습니다.
 
-**改动**：`explicitSave:true` 时不记 hash（设为空串），让 `overrideTextIsOurs` 只匹配插件写的。
+**변경**: `explicitSave:true` 일 때는 hash 를 기록하지 않고(빈 문자열로 설정), `overrideTextIsOurs` 가 플러그인이 쓴 것만 매칭하도록 합니다.
 
-**原代码**：
+**원본 코드**:
 ```js
 export async function markOverrideCustomized(dshHome, customized, text, extra = {}) {
   await writeOverrideState(dshHome, {
@@ -65,7 +65,7 @@ export async function markOverrideCustomized(dshHome, customized, text, extra = 
 }
 ```
 
-**改后**：
+**변경 후**:
 ```js
 export async function markOverrideCustomized(dshHome, customized, text, extra = {}) {
   const isExplicit = extra.explicitSave === true;
@@ -79,13 +79,13 @@ export async function markOverrideCustomized(dshHome, customized, text, extra = 
 }
 ```
 
-### 1.3 commitOverrideOnApply 保留磁盘用户内容（core.js:7993-8018）
+### 1.3 commitOverrideOnApply 는 디스크의 사용자 내용을 보존 (core.js:7993-8018)
 
-**问题**：`incoming=null`（用户点 Apply 但 UI 没传编辑框内容）→ `isKeepableUserOverride(null)` → false → seed 默认 → 覆盖用户修改。
+**문제**: `incoming=null`(사용자가 Apply 를 눌렀지만 UI 가 편집창 내용을 전달하지 않음) → `isKeepableUserOverride(null)` → false → seed 기본값 → 사용자 수정을 덮어씁니다.
 
-**改动**：`incoming=null` 时读磁盘当前内容，有用户内容就保留 + 标 `explicitSave:true`。
+**변경**: `incoming=null` 일 때 디스크의 현재 내용을 읽고, 사용자 내용이 있으면 보존하고 `explicitSave:true` 를 표시합니다.
 
-**原代码**：
+**원본 코드**:
 ```js
 export async function commitOverrideOnApply(dshHome, incoming) {
   const home = path.normalize(String(dshHome || findDshHome() || ""));
@@ -102,7 +102,7 @@ export async function commitOverrideOnApply(dshHome, incoming) {
 }
 ```
 
-**改后**：
+**변경 후**:
 ```js
 export async function commitOverrideOnApply(dshHome, incoming) {
   const home = path.normalize(String(dshHome || findDshHome() || ""));
@@ -131,13 +131,13 @@ export async function commitOverrideOnApply(dshHome, incoming) {
 }
 ```
 
-### 1.4 Apply 后 seed 保护用户内容（index.js:2002-2014）
+### 1.4 Apply 후 seed 가 사용자 내용을 보호 (index.js:2002-2014)
 
-**问题**：Apply 后无条件 `seedPromptInjectAtBoot` → 可能覆盖用户内容。
+**문제**: Apply 후 무조건 `seedPromptInjectAtBoot` 를 호출 → 사용자 내용을 덮어쓸 수 있습니다.
 
-**改动**：先读磁盘，有用户内容且 keepable → 跳过 seed。
+**변경**: 먼저 디스크를 읽고, 사용자 내용이 있고 keepable 하면 → seed 를 건너뜁니다.
 
-**原代码**：
+**원본 코드**:
 ```js
 let promptInjectInstall = "skipped";
 if (hostWritten && flash.ok === true) {
@@ -150,7 +150,7 @@ if (hostWritten && flash.ok === true) {
 }
 ```
 
-**改后**：
+**변경 후**:
 ```js
 let promptInjectInstall = "skipped";
 if (hostWritten && flash.ok === true) {
@@ -173,20 +173,20 @@ if (hostWritten && flash.ok === true) {
 
 ---
 
-## 2. 0.2.0 system prompt 修复（dsh-agent-loop/lib/index.js）
+## 2. 0.2.0 system prompt 수정 (dsh-agent-loop/lib/index.js)
 
-### 2.1 buildRequest 提取 system 到单独字段
+### 2.1 buildRequest 가 system 을 별도 필드로 추출
 
-**问题**：0.2.0 把系统提示词作为 `role: "system"` 消息放在 messages 数组里，不像 0.1.1 放在单独的 `system` 字段。模型把系统提示词当对话历史质疑→第二轮拒绝。
+**문제**: 0.2.0 은 시스템 프롬프트를 `role: "system"` 메시지로 messages 배열에 넣습니다, 0.1.1 처럼 별도 `system` 필드에 두지 않습니다. 모델이 시스템 프롬프트를 대화 기록으로 착각해 의심합니다→두 번째 턴에서 거부합니다.
 
-**改动**：在 `buildRequest` 里把 `role: "system"` 消息从 `deriveMessages()` 提出来，合并成 `system` 字符串放进 `system` 字段。
+**변경**: `buildRequest` 안에서 `role: "system"` 메시지를 `deriveMessages()` 에서 꺼내 `system` 문자열로 병합해 `system` 필드에 넣습니다.
 
-**文件**：
+**파일**:
 - `D:\DeepSeek Harness\.dsh\profiles\node_modules\@deepseek-ai\dsh-agent-loop\lib\index.js`
 - `D:\DeepSeek Harness\npm-global\node_modules\@deepseek-ai\dsh\node_modules\@deepseek-ai\dsh-agent-loop\lib\index.js`
-（两份是同一文件，hash 一致）
+(두 경로는 같은 파일이며 hash 가 일치)
 
-**原代码**（约1270行）：
+**원본 코드** (약 1270행):
 ```js
 const boundaryMessages = session.deriveMessages();
 for (const message of boundaryMessages) {
@@ -205,7 +205,7 @@ return markAgentLoopRequest(Object.freeze({
 }));
 ```
 
-**改后**：
+**변경 후**:
 ```js
 const boundaryMessages = session.deriveMessages();
 const systemParts = [];
@@ -246,78 +246,78 @@ return markAgentLoopRequest(Object.freeze({
 
 ---
 
-## 3. 提示词文件
+## 3. 프롬프트 파일
 
-### 3.1 新版提示词
-- `lib/default-prompt-inject.en.md` — 英文版
-- `lib/default-prompt-inject.zh.md` — 中文版
+### 3.1 새 버전 프롬프트
+- `lib/default-prompt-inject.en.md` — 영문판
+- `lib/default-prompt-inject.ko.md` — 한국어판
 
-### 3.2 原版备份
-- `lib/default-prompt-inject.md.bak` — 原版（232行）
-- `lib/default-prompt-inject.md` — 当前生效版（未替换，仍是原版）
+### 3.2 원본 백업
+- `lib/default-prompt-inject.md.bak` — 원본 (232행)
+- `lib/default-prompt-inject.md` — 현재 적용 버전 (로컬 초안, git 추적 제외)
 
 ---
 
-## 还原方法
+## 복원 방법
 
-### 还原 core.js（override 状态机）
+### core.js 복원 (override 상태 머신)
 
 ```powershell
-# 用 git 还原
-cd E:\渗透\dsh-purge
+# git 으로 복원
+cd "E:\침투\dsh-purge"
 git checkout -- lib/core.js
 git checkout -- lib/index.js
 ```
 
-### 还原 dsh-agent-loop（system prompt 修复）
+### dsh-agent-loop 복원 (system prompt 수정)
 
 ```powershell
-# 从 dsh-purge 的 bak 还原（如果 dsh-purge 创建了 bak）
+# dsh-purge 의 bak 에서 복원 (dsh-purge 가 bak 을 만들었다면)
 Copy-Item "D:\DeepSeek Harness\.dsh\profiles\node_modules\@deepseek-ai\dsh-agent-loop\lib\index.js.dshpurge.bak" "D:\DeepSeek Harness\.dsh\profiles\node_modules\@deepseek-ai\dsh-agent-loop\lib\index.js" -Force
 
-# 或者从 npm 缓存重装
+# 또는 npm 캐시에서 재설치
 cd D:\DeepSeek Harness
 npm install @deepseek-ai/dsh-agent-loop@0.2.0-rc.2 --force
 ```
 
-### 还原提示词
+### 프롬프트 복원
 
 ```powershell
-# 还原成原版
-Copy-Item "E:\渗透\dsh-purge\lib\default-prompt-inject.md.bak" "E:\渗透\dsh-purge\lib\default-prompt-inject.md" -Force
+# 원본으로 복원
+Copy-Item "E:\침투\dsh-purge\lib\default-prompt-inject.md.bak" "E:\침투\dsh-purge\lib\default-prompt-inject.md" -Force
 
-# 同步运行时副本
-Copy-Item "E:\渗透\dsh-purge\lib\default-prompt-inject.md" "D:\DeepSeek Harness\.dsh\prompt-inject.md" -Force
+# 런타임 사본 동기화
+Copy-Item "E:\침투\dsh-purge\lib\default-prompt-inject.md" "D:\DeepSeek Harness\.dsh\prompt-inject.md" -Force
 
-# 清 override state
+# override state 비우기
 $state = @{ customized = $false; explicitSave = $false; hash = ""; seedHash = ""; updatedAt = (Get-Date -Format "o") }
 $state | ConvertTo-Json -Depth 2 | Set-Content -LiteralPath "D:\DeepSeek Harness\.dsh\dsh-purge\override-state.json" -Encoding UTF8 -NoNewline
 ```
 
-### 还原 override-state.json
+### override-state.json 복원
 
 ```powershell
 $state = @{ customized = $false; explicitSave = $false; hash = ""; seedHash = ""; updatedAt = (Get-Date -Format "o") }
 $state | ConvertTo-Json -Depth 2 | Set-Content -LiteralPath "D:\DeepSeek Harness\.dsh\dsh-purge\override-state.json" -Encoding UTF8 -NoNewline
 ```
 
-### 全部还原（一键）
+### 전체 복원 (원클릭)
 
 ```powershell
 # 1. core.js + index.js
-cd E:\渗透\dsh-purge
+cd "E:\침투\dsh-purge"
 git checkout -- lib/core.js lib/index.js
 
 # 2. dsh-agent-loop
 Copy-Item "D:\DeepSeek Harness\.dsh\profiles\node_modules\@deepseek-ai\dsh-agent-loop\lib\index.js.dshpurge.bak" "D:\DeepSeek Harness\.dsh\profiles\node_modules\@deepseek-ai\dsh-agent-loop\lib\index.js" -Force
 
-# 3. 提示词
-Copy-Item "E:\渗透\dsh-purge\lib\default-prompt-inject.md.bak" "E:\渗透\dsh-purge@lib\default-prompt-inject.md" -Force
-Copy-Item "E:\渗透\dsh-purge\lib\default-prompt-inject.md" "D:\DeepSeek Harness\.dsh\prompt-inject.md" -Force
+# 3. 프롬프트
+Copy-Item "E:\침투\dsh-purge\lib\default-prompt-inject.md.bak" "E:\침투\dsh-purge@lib\default-prompt-inject.md" -Force
+Copy-Item "E:\침투\dsh-purge\lib\default-prompt-inject.md" "D:\DeepSeek Harness\.dsh\prompt-inject.md" -Force
 
 # 4. override state
 $state = @{ customized = $false; explicitSave = $false; hash = ""; seedHash = ""; updatedAt = (Get-Date -Format "o") }
 $state | ConvertTo-Json -Depth 2 | Set-Content -LiteralPath "D:\DeepSeek Harness\.dsh\dsh-purge\override-state.json" -Encoding UTF8 -NoNewline
 
-Write-Output "全部还原完成，重启桌面端生效"
+Write-Output "전체 복원 완료, 데스크톱을 재시작하면 적용됩니다"
 ```

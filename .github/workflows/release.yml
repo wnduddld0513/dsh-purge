@@ -41,7 +41,7 @@ jobs:
           fi
           first="$(head -n 1 release-notes.md | tr -d '\r')"
           if [ "$first" != "# ${version}" ]; then
-            echo "release-notes.md 第一行必须是 # ${version}，现在是: ${first}"
+            echo "release-notes.md 첫 줄은 반드시 # ${version} 이어야 합니다, 현재: ${first}"
             exit 1
           fi
           zip="dsh-purge-${version}.zip"
