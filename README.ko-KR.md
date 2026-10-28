@@ -137,7 +137,7 @@ Harness 는 문제를 모델에 넘기기만 하지 않습니다. 실행 중에 
 
 - **dsh 0.2.1-rc.2** (공식 데스크톱 / 공식 `dsh web`): **1.1.78** 을 사용합니다. `{{cwd}}` / `[cwd]` 전체 라운드 실패, 패치 #40 적용, `toolFilter` 사용 중단, `dsh-tools` 해석, hostFs fd, 데스크톱 패키지 교체 자살, `file:` 아카이브 업데이트, Ctrl+Enter 끼어들기를 수정했습니다.
 - **dsh 0.2.0-rc.2**: **1.1.40** 이상을 사용하세요. 이 페이지의 이 등급도 설치할 수 있습니다.
-- **dsh 0.1.7** (rc.1 / rc.2 포함): **1.1.39** 이하 버전을 사용하세요 — [Releases](https://github.com/YuJunZhiXue/dsh-purge/releases) 에서 해당 태그를 고르면 됩니다.
+- **dsh 0.1.7** (rc.1 / rc.2 포함): **1.1.39** 이하 버전을 사용하세요 — [Releases](https://github.com/wnduddld0513/dsh-purge/releases) 에서 해당 태그를 고르면 됩니다.
 
 맞지 않는 패치에는 적용 대기 또는 건너뛰기가 표시되고, 파일을 함부로 고치지 않습니다.
 
@@ -163,7 +163,7 @@ Harness 는 문제를 모델에 넘기기만 하지 않습니다. 실행 중에 
 **`dsh` 가 있는 경우:**
 
 ```sh
-dsh plugin --profile web add https://codeload.github.com/YuJunZhiXue/dsh-purge/tar.gz/refs/heads/master
+dsh plugin --profile web add https://codeload.github.com/wnduddld0513/dsh-purge/tar.gz/refs/heads/master
 ```
 
 데스크톱은 `web` 을 `desktop` 으로 바꿉니다. 현재 디렉터리가 이미 이 저장소라면 주소를 `.` 으로 바꾸세요.
@@ -172,14 +172,14 @@ dsh plugin --profile web add https://codeload.github.com/YuJunZhiXue/dsh-purge/t
 
 ```sh
 cd "$DSH_HOME/profiles/web"    # 데스크톱은 profiles/desktop 으로
-pnpm add https://codeload.github.com/YuJunZhiXue/dsh-purge/tar.gz/refs/heads/master
+pnpm add https://codeload.github.com/wnduddld0513/dsh-purge/tar.gz/refs/heads/master
 ```
 
 Windows PowerShell:
 
 ```powershell
 cd "$env:USERPROFILE\.dsh\profiles\web"   # 데스크톱은 profiles\desktop 으로
-pnpm add https://codeload.github.com/YuJunZhiXue/dsh-purge/tar.gz/refs/heads/master
+pnpm add https://codeload.github.com/wnduddld0513/dsh-purge/tar.gz/refs/heads/master
 ```
 
 `pnpm add` 와 `dsh plugin add` 는 모두 패키지를 가져옵니다. 이어서 `postinstall` 이 `dsh-purge` 를 `dsh.profile.bundles` 에 쓰고, 사용자 레벨 `cordis.patch.yml` 에 본체 `insert` 를 보탭니다(이 줄이 없으면 호스트가 플러그인을 로드하지 않고, 인터페이스에 버튼도 없습니다). pnpm 11 은 기본적으로 설치 스크립트를 막을 수 있고(`ERR_PNPM_IGNORED_BUILDS`), `--ignore-scripts` 를 붙인 경우에도 다시 실행해야 합니다:
@@ -193,7 +193,7 @@ node node_modules/dsh-purge/scripts/ensure-profile-bundle.mjs
 데스크톱 클라이언트에서는 버튼을 눌러도 됩니다(`dsh://` 로 호출하며, 내려받는 파일은 같은 압축 패키지입니다):
 
 <p align="center">
-  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.1.78&repo=YuJunZhiXue%2Fdsh-purge&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fcodeload.github.com%2FYuJunZhiXue%2Fdsh-purge%2Ftar.gz%2Frefs%2Fheads%2Fmaster"><strong>클라이언트 호출로 원클릭 설치</strong></a>
+  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.1.78&repo=wnduddld0513%2Fdsh-purge&permissions=%E7%B3%BB%E7%BB%9F%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A5%2C%E6%9C%AC%E6%9C%BA%E8%A1%A5%E4%B8%81%2C%E8%AE%BE%E7%BD%AE%E9%A1%B5&downloadUrl=https%3A%2F%2Fcodeload.github.com%2Fwnduddld0513%2Fdsh-purge%2Ftar.gz%2Frefs%2Fheads%2Fmaster"><strong>클라이언트 호출로 원클릭 설치</strong></a>
 </p>
 
 ### 3. 설치 후에도 세 가지를 더 해야 합니다
@@ -220,7 +220,7 @@ Web 버튼은 Web 만 건드리고, 데스크톱 버튼은 데스크톱만 건�
 
 ```sh
 dsh plugin --profile desktop remove dsh-purge
-dsh plugin --profile desktop add https://codeload.github.com/YuJunZhiXue/dsh-purge/tar.gz/refs/heads/master
+dsh plugin --profile desktop add https://codeload.github.com/wnduddld0513/dsh-purge/tar.gz/refs/heads/master
 ```
 
 pnpm 만 있는 경우:
@@ -228,7 +228,7 @@ pnpm 만 있는 경우:
 ```sh
 cd "$DSH_HOME/profiles/desktop"
 pnpm remove dsh-purge
-pnpm add https://codeload.github.com/YuJunZhiXue/dsh-purge/tar.gz/refs/heads/master
+pnpm add https://codeload.github.com/wnduddld0513/dsh-purge/tar.gz/refs/heads/master
 ```
 
 Web 은 `desktop` 을 `web` 으로 바꿉니다. 그다음 3단계를 진행하세요.
@@ -249,13 +249,13 @@ DeepSeek Harness 플러그인 `dsh-purge` 를 설치하되 Web profile 에만 �
 `dsh` 가 있는 경우:
 
 ```sh
-dsh plugin --profile web add https://codeload.github.com/YuJunZhiXue/dsh-purge/tar.gz/refs/heads/master
+dsh plugin --profile web add https://codeload.github.com/wnduddld0513/dsh-purge/tar.gz/refs/heads/master
 ```
 
 `dsh` 가 없고 pnpm 만 있는 경우: `$DSH_HOME/profiles/web` (흔히 `~/.dsh/profiles/web`) 를 찾아 그 디렉터리에서 실행합니다:
 
 ```sh
-pnpm add https://codeload.github.com/YuJunZhiXue/dsh-purge/tar.gz/refs/heads/master
+pnpm add https://codeload.github.com/wnduddld0513/dsh-purge/tar.gz/refs/heads/master
 ```
 
 현재 디렉터리가 이미 이 저장소이고 `dsh` 가 있으면 `dsh plugin --profile web add .` 을 사용합니다. `dsh` 와 pnpm 이 모두 없으면 사용자에게 알린 뒤 중지하세요.
@@ -295,10 +295,10 @@ $cands | Select-Object -Unique | Where-Object { $_ -and (Test-Path (Join-Path $_
 **2. 플러그인을 `$DSH_HOME/plugins/dsh-purge` 에 둡니다** (디렉터리 이름은 반드시 `dsh-purge` 여야 하고, 그 `package.json` 의 `"name"` 도 반드시 `dsh-purge` 여야 합니다).
 
 ```sh
-git clone https://github.com/YuJunZhiXue/dsh-purge.git "$DSH_HOME/plugins/dsh-purge"
+git clone https://github.com/wnduddld0513/dsh-purge.git "$DSH_HOME/plugins/dsh-purge"
 ```
 
-git 이 없다면 [master.tar.gz](https://github.com/YuJunZhiXue/dsh-purge/archive/refs/heads/master.tar.gz) 를 내려받아 압축을 풀고, `dsh-purge-master` 를 `dsh-purge` 로 이름을 바꾼 뒤 폴더째 `plugins` 아래에 두세요. 이 저장소 사본이 이미 있으면 디렉터리 전체를 복사하고, `.js` 몇 개만 복사하지 마세요.
+git 이 없다면 [master.tar.gz](https://github.com/wnduddld0513/dsh-purge/archive/refs/heads/master.tar.gz) 를 내려받아 압축을 풀고, `dsh-purge-master` 를 `dsh-purge` 로 이름을 바꾼 뒤 폴더째 `plugins` 아래에 두세요. 이 저장소 사본이 이미 있으면 디렉터리 전체를 복사하고, `.js` 몇 개만 복사하지 마세요.
 
 **3. 해당 profile 의 `package.json` 만 수정하고, 먼저 백업합니다.** Web → `$DSH_HOME/profiles/web/package.json`; 데스크톱 → `$DSH_HOME/profiles/desktop/package.json`. **두 곳만 추가**하고, 기존 의존성과 bundle 은 모두 그대로 둡니다:
 
@@ -580,14 +580,14 @@ flowchart TD
 
 ## 업데이트
 
-저자 개인 채널: [t.me/LLM_PoJia](https://t.me/LLM_PoJia). 전할 말이나 업데이트가 있으면 그곳에 올립니다. GitHub [Releases](https://github.com/YuJunZhiXue/dsh-purge/releases) 에서는 예전 패키지를 계속 받을 수 있습니다. 원본은 재판매할 수 없으며, 2차 개발 시에는 저작자 표시가 필수입니다.
+저자 개인 채널: [t.me/LLM_PoJia](https://t.me/LLM_PoJia). 전할 말이나 업데이트가 있으면 그곳에 올립니다. GitHub [Releases](https://github.com/wnduddld0513/dsh-purge/releases) 에서는 예전 패키지를 계속 받을 수 있습니다. 원본은 재판매할 수 없으며, 2차 개발 시에는 저작자 표시가 필수입니다.
 
 ## 참고
 
 - 변경 범위는 로컬 `@deepseek-ai/*` 패키지 안의 렌더링 문구, 기본 정책, 실행 로직과 사용자 디렉터리 아래의 덮어쓰기 파일 및 규칙 세트입니다.
 - 업그레이드 후 원문이 맞지 않으면 건너뛰기로 표시되며, 이번 적용은 완료로 처리되고 파일은 임의로 바뀌지 않습니다.
 - `@deepseek-ai` 가 아닌 서드파티 플러그인 소스 저장소는 건드리지 않습니다(시작 시 CMD 가 조용히 **최대한** 설치된 doctor / market / liangshen / mnemon 을 패치하며, 이는 런타임 패치입니다).
-- 설치는 GitHub 압축 패키지로 합니다(npm 저장소에는 이 이름이 없고, 플러그인 마켓도 쓰지 않습니다). dsh 가 있으면: `dsh plugin --profile web add https://codeload.github.com/YuJunZhiXue/dsh-purge/tar.gz/refs/heads/master`. pnpm 만 있으면: `$DSH_HOME/profiles/web` 안에서 `pnpm add` 로 같은 주소를 추가합니다. 데스크톱은 `web` 을 `desktop` 으로 바꾸세요. 현재 디렉터리가 이 저장소라면 `add .`.
+- 설치는 GitHub 압축 패키지로 합니다(npm 저장소에는 이 이름이 없고, 플러그인 마켓도 쓰지 않습니다). dsh 가 있으면: `dsh plugin --profile web add https://codeload.github.com/wnduddld0513/dsh-purge/tar.gz/refs/heads/master`. pnpm 만 있으면: `$DSH_HOME/profiles/web` 안에서 `pnpm add` 로 같은 주소를 추가합니다. 데스크톱은 `web` 을 `desktop` 으로 바꾸세요. 현재 디렉터리가 이 저장소라면 `add .`.
 
 ---
 
