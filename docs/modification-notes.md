@@ -252,8 +252,8 @@ return markAgentLoopRequest(Object.freeze({
 - `lib/default-prompt-inject.en.md` — 영문판
 - `lib/default-prompt-inject.ko.md` — 한국어판
 
-### 3.2 원본 백업
-- `lib/default-prompt-inject.md.bak` — 원본 (232행)
+### 3.2 원본 소스
+- 이전 원본 프롬프트 백업 파일은 삭제했다 — 이력은 git 으로만 확인할 수 있다
 - `lib/default-prompt-inject.md` — 현재 적용 버전 (로컬 초안, git 추적 제외)
 
 ---
@@ -284,7 +284,7 @@ npm install @deepseek-ai/dsh-agent-loop@0.2.0-rc.2 --force
 
 ```powershell
 # 원본으로 복원
-Copy-Item "E:\침투\dsh-purge\lib\default-prompt-inject.md.bak" "E:\침투\dsh-purge\lib\default-prompt-inject.md" -Force
+Copy-Item "E:\침투\dsh-purge\lib\default-prompt-inject.ko.md" "E:\침투\dsh-purge\lib\default-prompt-inject.md" -Force
 
 # 런타임 사본 동기화
 Copy-Item "E:\침투\dsh-purge\lib\default-prompt-inject.md" "D:\DeepSeek Harness\.dsh\prompt-inject.md" -Force
@@ -312,7 +312,7 @@ git checkout -- lib/core.js lib/index.js
 Copy-Item "D:\DeepSeek Harness\.dsh\profiles\node_modules\@deepseek-ai\dsh-agent-loop\lib\index.js.dshpurge.bak" "D:\DeepSeek Harness\.dsh\profiles\node_modules\@deepseek-ai\dsh-agent-loop\lib\index.js" -Force
 
 # 3. 프롬프트
-Copy-Item "E:\침투\dsh-purge\lib\default-prompt-inject.md.bak" "E:\침투\dsh-purge@lib\default-prompt-inject.md" -Force
+Copy-Item "E:\침투\dsh-purge\lib\default-prompt-inject.ko.md" "E:\침투\dsh-purge\lib\default-prompt-inject.md" -Force
 Copy-Item "E:\침투\dsh-purge\lib\default-prompt-inject.md" "D:\DeepSeek Harness\.dsh\prompt-inject.md" -Force
 
 # 4. override state
