@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /**
- * DSH profile 에 설치할 때 두 가지를 보충한다 (#154):
+ * 装进 DSH profile 时补两笔（#154）：
  *   1. dsh.profile.bundles
- *   2. 사용자 레이어 cordis.patch.yml 의 본문 insert
- * pnpm add / dsh plugin add 는 insert 를 스스로 쓰지 않는다. 마켓은 쓰므로 이미 있으면 건너뛴다.
- * 플러그인 저장소에서 pnpm install 을 돌리면 이 블록은 통째로 건너뛴다.
+ *   2. 用户层 cordis.patch.yml 的本体 insert
+ * pnpm add / dsh plugin add 都不会自己写 insert；市场会写，已有则跳过。
+ * 在插件仓库里跑 pnpm install 则整段跳过。
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -12,6 +12,8 @@ import { fileURLToPath } from "node:url";
 import {
   PURGE_NAME as NAME,
   ensureProfileBodyInsert,
+  ensureProfileBundles,
+  ensurePnpmAllowBuild,
   profileHasPurgeBodyInsert,
 } from "../lib/profile-insert.js";
 
@@ -49,6 +51,9 @@ function ensureProfileInsert(profileDir) {
   const result = ensureProfileBodyInsert(profileDir);
   if (result.wrote) {
     process.stdout.write(`dsh-purge: wrote body insert (${result.path})\n`);
+  } else if (result.ok === false) {
+    // 宿主 / 用户自己的 cordis.patch.yml 内容，宁可不动也别写坏（#191）
+    process.stdout.write(`dsh-purge: skipped body insert, unrecognized patch body (${result.path})\n`);
   } else {
     process.stdout.write(`dsh-purge: insert already in ${result.path}\n`);
   }
@@ -65,19 +70,15 @@ function main() {
     process.stderr.write(`dsh-purge: cannot read ${fp}\n`);
     process.exit(1);
   }
-  pkg.dsh = pkg.dsh && typeof pkg.dsh === "object" ? pkg.dsh : {};
-  pkg.dsh.profile = pkg.dsh.profile && typeof pkg.dsh.profile === "object" ? pkg.dsh.profile : {};
-  const bundles = Array.isArray(pkg.dsh.profile.bundles) ? pkg.dsh.profile.bundles : [];
-  if (!bundles.includes(NAME)) {
-    pkg.dsh.profile.bundles = [...bundles, NAME];
-    fs.writeFileSync(fp, `${JSON.stringify(pkg, null, 2)}\n`, "utf8");
-    process.stdout.write(`dsh-purge: appended to bundles (${profileDir})\n`);
-  } else {
-    process.stdout.write(`dsh-purge: already in bundles (${profileDir})\n`);
-  }
+  const bundles = ensureProfileBundles(profileDir);
+  process.stdout.write(bundles.wrote
+    ? `dsh-purge: appended to bundles (${profileDir})\n`
+    : `dsh-purge: already in bundles (${profileDir})\n`);
 
   try {
     ensureProfileInsert(profileDir);
+    const pnpm = ensurePnpmAllowBuild(profileDir);
+    if (pnpm.wrote) process.stdout.write(`dsh-purge: allowed pnpm build for ${NAME}\n`);
   } catch (e) {
     process.stderr.write(`dsh-purge: insert failed: ${e && e.message ? e.message : e}\n`);
     process.exit(1);

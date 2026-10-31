@@ -30,8 +30,8 @@
     personaPrefix: ""
     personaSuffix: ""
 
-# 본체 insert 는 사용자 계층 profile/cordis.patch.yml 에 기록합니다 (postinstall / 드릴 콘솔 자동 복구 보충).
-# 여기서는 이미 큐에 들어간 항목의 inject/config 만 수정합니다. 다시 insert 하면 already queued 가 됩니다 (#152 / #154 / #159).
+# 本体 insert 写在用户层 profile/cordis.patch.yml（postinstall / 演练台自愈补）。
+# 这里只改已入队条目的 inject/config。再 insert 一次会 already queued（#152 / #154 / #159）。
 - id: dsh-purge
   name: dsh-purge
   inject: [systemPrompt, tools]
