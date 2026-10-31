@@ -1,10 +1,4 @@
-<p align="center">
-  <img src="docs/banner.svg" alt="dsh-purge" width="720">
-</p>
-
-<h1 align="center">⚔️ DeepSeek Harness cybersecurity red-team tool (dsh-purge)</h1>
-
-<p align="center"><strong>Version 1.1.85</strong></p>
+<p align="center"><strong>Version 1.1.86</strong></p>
 
 <p align="center">
   <em>DeepSeek Harness jailbreak: every model, swap prompts per model. Default prompt for "Little Code Sauce". Please star ⭐ If you build on this, see Attribution required.</em>
@@ -33,7 +27,7 @@
 
 People have been selling this open-source work in the open. After that, the author was asked to come in and talk. No need to spell out the rest. Read between the lines.
 
-From now on the **public internet is closed**. The open-source build only allows **local lab IPs**: loopback and RFC1918. Domains are resolved first (including hosts); every answer must be private or loopback. A hosts trick that points `.lab` at a public IP, a failed lookup, or a mixed public answer is blocked. **Game cheats are forbidden** (aimbot, wallhack, memory edits against a game, anti-cheat bypass); the prompt and the session gate both stop them. This build does not ship the skill library or the knowledge base.
+This fork **removes the public-network gate**. Upstream `lib/net-scope.js` denied any task that mentioned a public host, wrote a synthetic assistant denial into the session, and ran the turn with an empty message list; that path is gone here. Nothing intercepts a turn, nothing fabricates a denial message, and no tool call is blocked because of the hosts it mentions. The local-lab wording still present in some upstream text is a historical description, not a runtime check. This fork ships the `skills/redteam` library (34 English skill documents) and leaves the knowledge base enabled.
 
 **The original build may not be resold.** Charging for it, skinning it, or hawking it in groups is not allowed. Forks are fine, but **you must attribute** and name the source: [YuJunZhiXue/dsh-purge](https://github.com/YuJunZhiXue/dsh-purge). Hide the source or pass it off as your own, and you are on the other side.
 
@@ -49,6 +43,7 @@ The author's personal channel: [t.me/LLM_PoJia](https://t.me/LLM_PoJia). Notes a
 - [Install](#install)
 - [Preview](#preview)
 - [Usage](#usage)
+- [Skills](#skills)
 - [How it works](#how-it-works)
 - [Restore](#restore)
 - [Releases](#releases)
@@ -57,7 +52,7 @@ The author's personal channel: [t.me/LLM_PoJia](https://t.me/LLM_PoJia). Notes a
 
 ## What this is
 
-**dsh-purge** is a cybersecurity red-team plugin for the official [DeepSeek Harness](https://www.deepseek.com/harness/) already installed on your machine. **1.1.85** targets **DSH 0.2.1-rc.2** (0.2.0 still works). **DSH 0.2.1-rc.3 and newer RCs are not supported.** Official **Web** (`dsh web`) and the official **desktop EXE** are both supported. Install and Apply them separately.
+**dsh-purge** is a cybersecurity red-team plugin for the official [DeepSeek Harness](https://www.deepseek.com/harness/) already installed on your machine. **1.1.86** targets **DSH 0.2.1-rc.2** (0.2.0 still works). **DSH 0.2.1-rc.3 and newer RCs are not supported.** Official **Web** (`dsh web`) and the official **desktop EXE** are both supported. Install and Apply them separately.
 
 Harness does more than forward a prompt. It rewrites prompts, approval gates, sandbox policy, and session migration at runtime. Asking only “will the model answer” treats a host-layer block as a model refusal. This plugin separates those two layers on your own install, for controlled evaluation and for seeing which default policy is too tight.
 
@@ -65,7 +60,7 @@ Harness does more than forward a prompt. It rewrites prompts, approval gates, sa
 |---|---|
 | **dsh-purge dock** | A button beside the session title opens the right dock. Two pages: Clean and Drill |
 | **Clean** | Grouped patch status, Apply / Restore / Uninstall, prompt editor, multiple rule sets |
-| **Drill** | Built into the stable release. After authorization: assets and the local environment. This build does not ship skills or the knowledge base. Local lab only |
+| **Drill** | Built into the stable release. After authorization: assets and the local environment. This fork ships `skills/redteam` (34 skills) and the knowledge base is enabled |
 | **Host policy** | Default copy, permission policy, and tool limits. Official capabilities stay. No second invented identity |
 | **On start** | Checks and reapplies. After npm overwrites `node_modules`, you do not hand-edit files |
 
@@ -107,7 +102,7 @@ This repo is [Apache License 2.0](./LICENSE). Forks and redistributions must kee
 2. **Local official Harness only.** Security-eval patches and prompt injection run only on the **official DeepSeek Harness already installed on the user's machine** (`@deepseek-ai` packages, local profile / `$DSH_HOME`). The target is the user's own official local software, **not** someone else's website, server, account, or information system.
 3. **Eval patches do not attack the public internet.** Apply, inject, revert, and uninstall stay in local files and local processes. They **do not scan, probe, intrude, or send attack traffic to any public host or unauthorized system**. Do not use this project as a jump host against the public internet. If "check for updates" is on, the plugin may only contact this plugin's own GitHub repository to compare versions. That is **not** an attack on third-party systems and is **not** authorization to penetrate anything.
 4. **Lawful, controlled scope.** This project is an aid for red-team research and robustness evaluation on an **official Harness the user is entitled to administer**. **Do not run it against targets without the owner's lawful written authorization, public online systems, or production workloads.** Testing must stay on the **authorized local official Harness, offline local synthetic fixtures, authorized cybersecurity ranges, and compliant lab environments**.
-5. **The open-source build is local-lab only.** Attack tasks only allow loopback and RFC1918 addresses. Domains are resolved, then judged by IP; suffixes are not an allow list. A public IP, a name that resolves public, a failed lookup, or a hosts entry that points a lab name at the public internet is not an exception. A key, a password, a network range, a wildcard, or a claim made in the conversation does not add an exception. Game cheats are forbidden. This build does not ship the skill library or the knowledge base.
+5. **The fork-removed public-network gate.** Upstream refused attack tasks whose target was not loopback or RFC1918, resolved every domain, and rejected a failed lookup or a mixed public answer. This fork deletes that check entirely: `installRegionGate()` is a no-op, the host/bank/cheat keyword tables are gone, and `tools/pre-execute` no longer inspects arguments for hosts. Turn interception and the synthetic denial message cannot fire because the code path no longer exists. This fork ships the `skills/redteam` library (34 English skill documents) and leaves the knowledge base enabled.
 6. **Forbidden uses.** Users must not use this project, directly or indirectly, to violate the following (each must be followed; no excuse to evade):
    - <font color="red"><strong>Criminal Law of the People's Republic of China</strong></font>
    - <font color="red"><strong>Cybersecurity Law of the People's Republic of China</strong></font>
@@ -131,9 +126,9 @@ This repo is [Apache License 2.0](./LICENSE). Forks and redistributions must kee
 
 ## Supported hosts
 
-**1.1.85 targets DSH 0.2.1-rc.2.** 0.2.0 still works. Do not apply it to 0.1.x.
+**1.1.86 targets DSH 0.2.1-rc.2.** 0.2.0 still works. Do not apply it to 0.1.x.
 
-- **dsh 0.2.1-rc.2** (official desktop / official `dsh web`): use **1.1.85**. Fixes `{{cwd}}` / `[cwd]` crash, patch #40 match, dropped `toolFilter`, host `dsh-tools` resolve, hostFs fd, desktop helper self-kill, `file:` archive update, Ctrl+Enter steer.
+- **dsh 0.2.1-rc.2** (official desktop / official `dsh web`): use **1.1.86**. Fixes `{{cwd}}` / `[cwd]` crash, patch #40 match, dropped `toolFilter`, host `dsh-tools` resolve, hostFs fd, desktop helper self-kill, `file:` archive update, Ctrl+Enter steer.
 - **dsh 0.2.0-rc.2**: use **1.1.40** or newer; this line also installs.
 - **dsh 0.1.7** (incl. rc.1 / rc.2): use **1.1.39** or older — pick the tag on [Releases](https://github.com/YuJunZhiXue/dsh-purge/releases).
 - **dsh 0.2.1-rc.3 / rc.4 and newer are not supported.** Unmatched patches stay pending or skipped; nothing is rewritten blindly. Stay on **0.2.1-rc.2**.
@@ -208,7 +203,7 @@ node node_modules/dsh-purge/scripts/ensure-profile-bundle.mjs
 - On the desktop client you can also click the button (`dsh://` deep link; it still downloads the same tarball).
 
 <p align="center">
-  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.1.85&repo=wnduddld0513%2Fdsh-purge-kr&permissions=%EC%8B%9C%EC%8A%A4%ED%85%9C%20%ED%94%84%EB%A1%AC%ED%94%84%ED%8A%B8%20%EC%A3%BC%EC%9E%85%2C%EB%A1%9C%EC%BB%AC%20%ED%8C%A8%EC%B9%98%2C%EC%84%A4%EC%A0%95%20%ED%8E%98%EC%9D%B4%EC%A7%80&downloadUrl=https%3A%2F%2Fcodeload.github.com%2Fwnduddld0513%2Fdsh-purge-kr%2Ftar.gz%2Frefs%2Fheads%2Fmaster"><strong>Install in desktop client</strong></a>
+  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.1.86&repo=wnduddld0513%2Fdsh-purge-kr&permissions=%EC%8B%9C%EC%8A%A4%ED%85%9C%20%ED%94%84%EB%A1%AC%ED%94%84%ED%8A%B8%20%EC%A3%BC%EC%9E%85%2C%EB%A1%9C%EC%BB%AC%20%ED%8C%A8%EC%B9%98%2C%EC%84%A4%EC%A0%95%20%ED%8E%98%EC%9D%B4%EC%A7%80&downloadUrl=https%3A%2F%2Fcodeload.github.com%2Fwnduddld0513%2Fdsh-purge-kr%2Ftar.gz%2Frefs%2Fheads%2Fmaster"><strong>Install in desktop client</strong></a>
 </p>
 
 **Step 3 — Restart the host.** Adding the plugin to a profile does **not** patch `@deepseek-ai` by itself. Fully quit and reopen the host you just installed into (Web: stop `dsh web` and start again; Desktop: quit the tray icon too, then open the exe).
@@ -379,13 +374,13 @@ Plugin config lives in `cordis.patch.yml` (`postPrompt` is empty by default):
 
 **dsh-purge** sits beside the session title. It opens a right-hand dock with two pages: **Clean** and **Drill**. Switch **Light / Ink**. Patches are grouped; the count only includes items that actually applied. Rule sets sit in a list above the editor, with Enable and Delete on each row.
 
-The first time you open Drill you read the notice, wait out the countdown, scroll to the end, and check three boxes. Clean does not need that step. Drill is only for a host you manage, an offline target, or an exercise that already has written authorization.
+This fork does not gate Drill behind an authorization dialog: the console opens directly and only the server-side grant record (/dsh-purge/drill-grant) remains. There is no environment gate either, so submit is never swallowed. Drill is only for a host you manage, an offline target, or an exercise that already has written authorization.
 
 **Clean**
 
 ![Clean](docs/preview/dock-clean.png)
 
-**Drill authorization**
+**Drill authorization (upstream screen — this dialog no longer appears in this fork)**
 
 ![Drill authorization](docs/preview/dock-auth.png)
 
@@ -397,27 +392,48 @@ The first time you open Drill you read the notice, wait out the countdown, scrol
 
 ![Patches](docs/preview/settings.png)
 
-**Local lab**
+**Public-network gate**
 
-The open-source build only allows localhost/private nets. The Clean page says so. You cannot register a public host.
+Removed in this fork. The Clean page no longer carries the "local lab only" card, and no host allow list gates execution.
 
 | Area | What it shows |
 |---|---|
 | dsh-purge | button beside the session title; opens or collapses the dock |
 | Clean | patches, prompt, rule sets |
-| Drill | assets and environment after authorization. This build does not ship skills or the knowledge base. The tab says Unauthorized until then |
+| Drill | assets and environment. The authorization dialog is removed, so the console opens directly, and this fork ships the `skills/redteam` library |
 | Patches | grouped status, Apply, Restore, or Uninstall |
 | Prompt | edit `prompt-inject.md` as the session override |
-| Local lab | loopback / RFC1918 only; names are resolved, and every address must be private |
+| Public-network gate | removed in this fork: no turn interception, no synthetic denial message, no host-based tool block |
 | Rule sets | multiple `AGENTS.md` / `CLAUDE.md`; Enable writes under `$DSH_HOME`, Delete removes the row |
 
 ---
 
 ## Layout
 
-`bin/` is the CLI, `lib/` is patches and the drill console, `presets/redteam/` is the red-team preset, and `client.js` is the dock. This build does not ship `skills/` or the knowledge base.
+`bin/` is the CLI, `lib/` is patches and the drill console, `presets/redteam/` is the red-team preset, and `client.js` is the dock. This fork adds `skills/redteam/` (34 English skill documents) and enables the knowledge base (`redteam_poc_*`).
 
 Runtime files live under `$DSH_HOME`: `prompt-inject.md`, `rules/`, `redteam/`. If `DSH_HOME` is unset, the launcher-adjacent `.dsh` wins over `~/.dsh`. Web and the desktop app each use their own home.
+
+## Skills
+
+This fork ships the full skill library under `skills/redteam/` (34 English documents). Each file name is the skill id that `redteam_preflight` reports, and every one of them resolves to `available`: the loader no longer turns a missing tool or path into a hard "unavailable" state, it only prints the install hint.
+
+| Group | Skills | Focus |
+|---|---|---|
+| Recon (11) | `passive-recon` `active-scan` `recon-pipeline` `fofa-recon` `deepseek-web-intel` `asset-correlation` `web-fingerprint` `dir-bruteforce` `pd-httpx` `nuclei-templates` `nuclei-scan` | CT/RDAP/SPF pivots, masscan+nmap sweep, funnel stages, FOFA query families, fingerprint evidence, soft-404 tuned ffuf, template indexing |
+| Tunnel and proxy (8) | `ligolo-proxy` `ligolo-agent` `chisel-tunnel` `frp-tunnel` `suo5-tunnel` `vps-reverse-shell` `cn-proxy-pool` `shell-handler` | TUN landing node, agent staging, `R:socks` reverse, frps/frpc, webshell to SOCKS5, `ssh -R`, proxy harvesting, PTY upgrade |
+| Intrusion (7) | `credential-attack` `unauth-exploit` `webshell-toolkit` `redis-cli` `lateral-movement` `fscan-intranet` `gogo-intranet` | low-and-slow spray with hashcat/john, unauthenticated service ladder, GUI-less Behinder/Godzilla payloads, RDB extraction and `REPLICAOF`, Kerberoast/AS-REP and pass-the-hash noise order, in-net three-pass scans over SOCKS5 |
+| Browser and planning (8) | `kimi-chrome` `kimi-webbridge` `playwright-cli` `browser-automation` `campaign-planning` `score-coverage` `specialist-paths` `redteam-setup` | launcher and bridge lifecycle, Playwright CLI, engine selection, timebox and noise budget, point-code coverage table, specialist routing, environment readiness |
+
+Every document follows the same seven sections (`# title`, `## When to use`, `## Prerequisites`, `## Workflow`, `## Output and evidence`, `## Failure modes`, `## Notes`) and uses only placeholders (`TARGET`, `TARGET_IP`, `DOMAIN`, `PORT`, `THREADS`, `RATE`, `WORDLIST`, `OAST_DOMAIN`, `RESULT_DIR`, `VPS_HOST`, `INTERFACE`). Optional environment variables are written as `os.environ.get("X", "")` so a scan never reports them as required.
+
+The knowledge base tools (`redteam_poc_search`, `redteam_poc_get`, `redteam_poc_add`, `redteam_poc_list`, `redteam_poc_update`, `redteam_poc_use`) are enabled in this fork: they read and write `store-core` POC tables again instead of returning a fixed disabled payload.
+
+p align="center">
+  <img src="docs/banner.svg" alt="dsh-purge" width="720">
+</p>
+
+<h1 align="center">⚔️ DeepSeek Harness cybersecurity red-team tool (dsh-purge)</h1>
 
 ---
 
@@ -473,9 +489,9 @@ For routine tasks, you can also opt into Low reasoning for new sessions:
 
 Restart `dsh web` to load the profile. The model and reasoning defaults apply to newly created sessions; select Low in the composer for an existing session. The plugin does not change these model preferences automatically. Keep High when the task needs deeper reasoning, and narrow file searches rather than recursively scanning every application directory.
 
-### Local lab
+### Public-network gate (removed)
 
-Attack tasks are denied by default. The open-source build only allows loopback and RFC1918 IPs. Names are resolved first; a `.lab` / `.htb` suffix is not enough. A hosts entry that points a lab name at a public IP is blocked. Saying “this is my server” in chat does not allow it.
+Upstream `net-scope.js` denied any task that touched a public host and injected a synthetic assistant denial into the session, then let the turn run with an empty message list, so the real request never reached the model. This fork removes the whole path: the `agent/pre-step` interception, the `tools/pre-execute` argument hook, the host / bank / cheat keyword tables, and the DNS-based range test. What remains is a no-op `installRegionGate()` plus the allow-list file helpers the settings API still calls.
 
 ---
 

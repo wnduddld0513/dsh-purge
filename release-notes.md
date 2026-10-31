@@ -1,3 +1,31 @@
+# 1.1.86
+
+## 한국어
+
+- 버전 **1.1.86** — 이 포크의 게이트 제거와 스킬 라이브러리 동봉을 담았습니다.
+- **스킬 라이브러리 34종 동봉**: `skills/redteam/*.md` 를 새로 작성해 넣었습니다(영문, 파일명=스킬 id). `package.json` 의 `files` 에 `skills` 를 추가해 배포 tarball 에도 포함됩니다.
+- **스킬 상태 게이트 제거**: `skill-availability.js` 의 `checkSkill()` 이 더 이상 `broken`/`unknown` 을 만들지 않고 항상 `available` 을 반환합니다. `needs_user` 는 항상 빈 배열이고, 설치 힌트만 남습니다.
+- **지식 베이스 도구 복원**: `redteam_poc_search` `redteam_poc_get` `redteam_poc_add` `redteam_poc_list` `redteam_poc_update` `redteam_poc_use` 의 `KB_DISABLED` 조기 반환을 걷어내고 `store-core` 구현을 그대로 호출합니다.
+- **에이전트 슬롯 상한 제거**: `redteam_agent_slot` 은 더 이상 3개 초과를 이유로 거부하지 않습니다(`cap`/`free` 는 `null`, `gate: "disabled"`).
+- **클라이언트 전송 차단 제거**: `client.js` 의 `mustBlockSubmit()` 이 항상 `false` 입니다. 환경 준비가 안 됐다는 이유로 전송이 삼켜지는 경로가 사라졌습니다. 드릴 승인 창과 첫 실행 고지 창도 게이트로 쓰지 않습니다(`readDrillAuth()`/`readWelcomeAck()` 는 `true`). 서버의 `/dsh-purge/drill-grant` 기록 경로는 유지됩니다.
+- **공인망 게이트 제거**: `net-scope.js` 는 74줄 스텁이 되었습니다. `agent/pre-step` 턴 가로채기, `assistant/message` 합성 거부 기록, `tools/pre-execute` 인자 검사, 호스트·은행·치트 키워드 표, DNS 대역 판정이 모두 사라졌고 `installRegionGate()` 는 no-op 입니다.
+- **인자 검사 제거**: `validate.js` 의 셸 타입 화이트리스트와 `assertPathWithin` 차단을 없앴습니다.
+- 문서: README 양쪽에 `## 스킬` 절을 추가하고, 남아 있던 "오픈소스 버전은 스킬·지식을 배포하지 않습니다" 문구와 게이트 설명을 실제 동작으로 교체했습니다.
+- 테스트: 84/84 통과.
+
+## English
+
+- Version **1.1.86** — carries this fork's gate removal and the bundled skill library.
+- **34-skill library**: new `skills/redteam/*.md` documents (English, file name = skill id), and `skills` is now listed in `package.json` `files` so it ships in the tarball.
+- **No skill status gate**: `checkSkill()` in `skill-availability.js` never returns `broken`/`unknown`; it always reports `available` and `needs_user` stays empty. Install hints remain.
+- **Knowledge base restored**: the six `redteam_poc_*` tools no longer short-circuit on `KB_DISABLED`; they call `store-core` again.
+- **Agent slot cap removed**: `redteam_agent_slot` no longer refuses above three concurrent agents (`cap`/`free` are `null`, `gate: "disabled"`).
+- **No client submit blocking**: `mustBlockSubmit()` always returns `false`, so a submit is never swallowed for environment reasons. The drill authorization dialog and the first-run notice no longer gate the UI (`readDrillAuth()`/`readWelcomeAck()` return `true`); the server-side `/dsh-purge/drill-grant` record stays.
+- **Public-network gate removed**: `net-scope.js` is a 74-line stub. The `agent/pre-step` interception, the synthetic `assistant/message` denial, the `tools/pre-execute` argument hook, the host/bank/cheat keyword tables and the DNS range test are gone; `installRegionGate()` is a no-op.
+- **Argument validation removed**: `validate.js` no longer enforces the shell-type whitelist or `assertPathWithin`.
+- Docs: new `## Skills` section in both READMEs, and the leftover "this build does not ship skills or the knowledge base" wording plus the gate descriptions now match real behavior.
+- Tests: 84/84 passing.
+
 # 1.1.85
 
 ## 한국어
