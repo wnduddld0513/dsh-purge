@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /**
- * 装进 DSH profile 时补两笔（#154）：
+ * DSH profile 에 설치할 때 두 가지를 보충한다(#154):
  *   1. dsh.profile.bundles
- *   2. 用户层 cordis.patch.yml 的本体 insert
- * pnpm add / dsh plugin add 都不会自己写 insert；市场会写，已有则跳过。
- * 在插件仓库里跑 pnpm install 则整段跳过。
+ *   2. 사용자 계층 cordis.patch.yml 의 본체 insert
+ * pnpm add / dsh plugin add 는 insert 를 스스로 쓰지 않는다. 마켓은 쓰며, 이미 있으면 건너뛴다.
+ * 플러그인 리포지터리에서 pnpm install 을 돌리면 이 구간 전체를 건너뛴다.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -52,7 +52,7 @@ function ensureProfileInsert(profileDir) {
   if (result.wrote) {
     process.stdout.write(`dsh-purge: wrote body insert (${result.path})\n`);
   } else if (result.ok === false) {
-    // 宿主 / 用户自己的 cordis.patch.yml 内容，宁可不动也别写坏（#191）
+    // 호스트 / 사용자 자신의 cordis.patch.yml 내용은 건드리지 않는 편이 낫다. 잘못 쓰면 안 된다(#191).
     process.stdout.write(`dsh-purge: skipped body insert, unrecognized patch body (${result.path})\n`);
   } else {
     process.stdout.write(`dsh-purge: insert already in ${result.path}\n`);

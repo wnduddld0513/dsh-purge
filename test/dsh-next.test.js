@@ -7,14 +7,14 @@ import {
 } from "../lib/desktop.js";
 import { detectSurface, pathLooksDesktop, isCommunityElectronHost } from "../lib/surface.js";
 
-test("DSH NEXT 路径和 exe 按桌面认", () => {
+test("DSH NEXT 경로와 exe 는 데스크톱으로 인식한다", () => {
   assert.equal(looksLikeDesktopName("C:/Users/me/AppData/Local/Programs/DSH NEXT/DSH NEXT.exe"), true);
   assert.equal(isDesktopExecutable("C:/Users/me/AppData/Local/Programs/DSH NEXT/DSH NEXT.exe"), true);
   assert.equal(isOfficialHarnessExecutable("C:/Users/me/AppData/Local/Programs/DSH NEXT/DSH NEXT.exe"), true);
   assert.equal(pathLooksDesktop("C:/Users/me/AppData/Local/Programs/DSH NEXT/DSH NEXT.exe"), true);
 });
 
-test("DSH NEXT 即使 DSH_SURFACE=web 也判桌面", () => {
+test("DSH NEXT 는 DSH_SURFACE=web 이어도 데스크톱으로 판정한다", () => {
   const input = {
     env: { DSH_SURFACE: "web", DSH_PROFILE: "dsh-next" },
     execPath: "C:\\\\Users\\\\me\\\\AppData\\\\Local\\\\Programs\\\\DSH NEXT\\\\DSH NEXT.exe",
@@ -23,6 +23,6 @@ test("DSH NEXT 即使 DSH_SURFACE=web 也判桌面", () => {
   assert.equal(detectSurface(input), "desktop");
 });
 
-test("普通路径不会因为带 app.asar 就当桌面", () => {
+test("일반 경로는 app.asar 가 붙어 있어도 데스크톱으로 보지 않는다", () => {
   assert.equal(pathLooksDesktop("/tmp/random-app/resources/app.asar"), false);
 });

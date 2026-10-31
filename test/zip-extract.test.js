@@ -52,7 +52,7 @@ function storedZip(entries) {
   return Buffer.concat([localBuf, centralBuf, eocd]);
 }
 
-test("zip 目录条目建目录而不是空文件", () => {
+test("zip 디렉터리 엔트리는 빈 파일이 아니라 디렉터리를 만든다", () => {
   const dest = fs.mkdtempSync(path.join(os.tmpdir(), "dsh-purge-zip-"));
   try {
     extractZipBuffer(storedZip([

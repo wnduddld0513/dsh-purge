@@ -26,45 +26,46 @@ const base = {
 };
 
 /* ---------------------------------------------------------------------------
- * 判据：上游漂移必须显性，不能落成 skipped（软成功）。
- * 这是"官方升级后插件静默失效、状态页却全绿"的唯一入口。
+ * 판정 기준: 업스트림 드리프트는 반드시 드러나야 하고, skipped(소프트 성공)로
+ * 떨어지면 안 된다. "공식 업그레이드 후 플러그인이 조용히 무효화되는데 상태
+ * 페이지는 전부 초록"인 상황을 잡아내는 유일한 입구다.
  * ------------------------------------------------------------------------- */
 
-test("rollupPatchStatus: 文件在、原文对不上 → drifted 而不是 skipped", () => {
+test("rollupPatchStatus: 파일은 있는데 원문이 맞지 않으면 → skipped 가 아니라 drifted", () => {
   assert.equal(rollupPatchStatus({ ...base, drifted: 1 }), "drifted");
 });
 
-test("rollupPatchStatus: pattern 还在 → pattern_not_found（可以打）", () => {
+test("rollupPatchStatus: pattern 이 아직 있으면 → pattern_not_found(적용 가능)", () => {
   assert.equal(rollupPatchStatus({ ...base, notFound: 1 }), "pattern_not_found");
 });
 
-test("rollupPatchStatus: 有文件真的写成功就仍算 applied，不制造半打假告警", () => {
+test("rollupPatchStatus: 어떤 파일이 실제로 기록에 성공했다면 여전히 applied, 절반만 적용된 거짓 경고를 만들지 않는다", () => {
   assert.equal(rollupPatchStatus({ ...base, applied: 1, drifted: 1 }), "applied");
 });
 
-test("rollupPatchStatus: 已经落盘过的补丁仍算 already，不因个别文件漂移翻红", () => {
-  // 多文件补丁里个别文件本来就不含这段代码（另一个构建产物），
-  // 这种"假漂移"不能盖掉已经打上的部分。
+test("rollupPatchStatus: 이미 디스크에 기록된 패치는 여전히 already, 일부 파일 드리프트로 빨개지지 않는다", () => {
+  // 다중 파일 패치에서 일부 파일은 원래 이 코드 조각을 포함하지 않는다(다른 빌드 산출물).
+  // 이런 "가짜 드리프트"가 이미 적용된 부분을 덮어서는 안 된다.
   assert.equal(rollupPatchStatus({ ...base, already: 1, drifted: 1 }), "already");
 });
 
-test("rollupPatchStatus: 写错误优先于 applied，不能把 EACCES 吞成绿", () => {
+test("rollupPatchStatus: 쓰기 오류가 applied 보다 우선한다, EACCES 를 초록으로 삼키면 안 된다", () => {
   assert.equal(
     rollupPatchStatus({ ...base, applied: 1, lastError: "write_error:EACCES" }),
     "write_error:EACCES",
   );
 });
 
-test("rollupPatchStatus: 文件全缺 → missing_file", () => {
+test("rollupPatchStatus: 파일이 전부 없으면 → missing_file", () => {
   assert.equal(rollupPatchStatus({ ...base, missing: 1 }), "missing_file");
 });
 
-test("filePatchOutcome: 文件在、marker 没有、pattern 一条都不中 → drifted", () => {
+test("filePatchOutcome: 파일은 있는데 marker 도 없고 pattern 도 하나도 안 맞으면 → drifted", () => {
   const patch = { id: 9801, replacements: [{ pattern: "NEEDLE_NOT_THERE", replace: "x" }] };
   assert.equal(filePatchOutcome("host text", patch, ""), "drifted");
 });
 
-test("filePatchOutcome: marker 在 → applied（不算漂移）", () => {
+test("filePatchOutcome: marker 가 있으면 → applied(드리프트로 보지 않는다)", () => {
   const patch = {
     id: 9802,
     markers: ["[dsh-purge] marker"],
@@ -73,12 +74,12 @@ test("filePatchOutcome: marker 在 → applied（不算漂移）", () => {
   assert.equal(filePatchOutcome("host [dsh-purge] marker text", patch, ""), "applied");
 });
 
-test("filePatchOutcome: pattern 还在 → pending", () => {
+test("filePatchOutcome: pattern 이 아직 있으면 → pending", () => {
   const patch = { id: 9803, replacements: [{ pattern: "NEEDLE", replace: "x" }] };
   assert.equal(filePatchOutcome("a NEEDLE b", patch, ""), "pending");
 });
 
-test("自标记型补丁：pattern 就是本插件留下的痕迹，找不到 = 本来没加过，不算漂移", () => {
+test("자기 표시형 패치: pattern 이 곧 이 플러그인이 남긴 흔적이므로 못 찾으면 애초에 추가된 적이 없다는 뜻이고 드리프트가 아니다", () => {
   const patch = {
     id: 9804,
     replacements: [{ pattern: "- id: tool-fs # [dsh-purge] minimal fs tool parity", replace: "x" }],
@@ -87,44 +88,45 @@ test("自标记型补丁：pattern 就是本插件留下的痕迹，找不到 = 
   assert.equal(filePatchOutcome("host text", patch, ""), "skipped");
 });
 
-test("自标记型判定：普通补丁不算自标记，#80 算", () => {
+test("자기 표시형 판정: 일반 패치는 자기 표시형이 아니고, #80 은 자기 표시형이다", () => {
   assert.equal(isSelfMarkedPatch({ id: 9805, replacements: [{ pattern: "const a = 1;", replace: "x" }] }), false);
   const p80 = ALL_PATCHES.find((p) => p.id === 80);
-  assert.ok(p80, "找不到 #80");
+  assert.ok(p80, "#80 을 찾을 수 없다");
   assert.equal(isSelfMarkedPatch(p80), true);
 });
 
 /* ---------------------------------------------------------------------------
- * 就绪口径：drifted 必须让"已就绪"变红（可选补丁不阻断 apply，但状态仍在）。
+ * 준비 상태 기준: drifted 는 반드시 "준비됨"을 빨갛게 만들어야 한다(선택적 패치는
+ * apply 를 막지 않지만 상태는 여전히 남는다).
  * ------------------------------------------------------------------------- */
 
-test("patchStatusReady: drifted 的非可选补丁不算就绪", () => {
+test("patchStatusReady: drifted 인 비선택 패치는 준비된 것으로 보지 않는다", () => {
   assert.equal(patchStatusReady("drifted", { optional: false }), false);
 });
 
-test("patchStatusReady: drifted 的可选补丁不阻断就绪", () => {
+test("patchStatusReady: drifted 인 선택적 패치는 준비 상태를 막지 않는다", () => {
   assert.equal(patchStatusReady("drifted", { optional: true }), true);
 });
 
-test("patchStatusReady: applied / already 算就绪", () => {
+test("patchStatusReady: applied / already 는 준비된 것으로 본다", () => {
   assert.equal(patchStatusReady("applied"), true);
   assert.equal(patchStatusReady("already"), true);
 });
 
-test("patchStatusReady: pending 不算就绪", () => {
+test("patchStatusReady: pending 은 준비된 것으로 보지 않는다", () => {
   assert.equal(patchStatusReady("pending"), false);
 });
 
-test("patchStatusReady: skipped 不再天然就绪，可选补丁仍然就绪", () => {
+test("patchStatusReady: skipped 는 더 이상 자동으로 준비 상태가 아니고, 선택적 패치는 여전히 준비 상태다", () => {
   assert.equal(patchStatusReady("skipped", { optional: false }), false);
   assert.equal(patchStatusReady("skipped", { optional: true }), true);
 });
 
 /* ---------------------------------------------------------------------------
- * 展示层统计：drifted 不能被算进 ready。
+ * 표시 계층 집계: drifted 는 ready 에 포함되면 안 된다.
  * ------------------------------------------------------------------------- */
 
-test("tallyDisplayPatches: drifted 不计入 ready", () => {
+test("tallyDisplayPatches: drifted 는 ready 에 집계되지 않는다", () => {
   const out = tallyDisplayPatches([
     { status: "applied" },
     { status: "drifted" },
@@ -132,57 +134,59 @@ test("tallyDisplayPatches: drifted 不计入 ready", () => {
   ]);
   assert.equal(out.applied, 1);
   assert.equal(out.drifted, 1);
-  assert.equal(out.ready, 2, "只有 applied + skipped 计入 ready");
+  assert.equal(out.ready, 2, "applied + skipped 만 ready 에 집계된다");
 });
 
-test("rollupDisplayStatus: 一组里只要有一条漂移，这组就不是干净绿", () => {
+test("rollupDisplayStatus: 한 그룹에 드리프트가 하나라도 있으면 그 그룹은 깨끗한 초록이 아니다", () => {
   assert.equal(rollupDisplayStatus(["applied", "drifted"]), "drifted");
   assert.equal(rollupDisplayStatus(["applied", "applied"]), "applied");
   assert.equal(rollupDisplayStatus(["pending", "drifted"]), "pending");
 });
 
 /* ---------------------------------------------------------------------------
- * 软成功口径：skipped 不再天然软成功；drifted 看得见但不阻断 Apply。
+ * 소프트 성공 기준: skipped 는 더 이상 자동으로 소프트 성공이 아니고,
+ * drifted 는 보이되 Apply 를 막지 않는다.
  * ------------------------------------------------------------------------- */
 
-test("isPatchResultSoftOk: skipped 只有可选/自标记型才算软成功", () => {
+test("isPatchResultSoftOk: skipped 는 선택적이거나 자기 표시형일 때만 소프트 성공으로 본다", () => {
   assert.equal(isPatchResultSoftOk({ status: "skipped" }, { id: 1, optional: false }), false);
   assert.equal(isPatchResultSoftOk({ status: "skipped" }, { id: 2, optional: true }), true);
 });
 
-test("isPatchResultSoftOk: drifted 不阻断 Apply（兼容 0.1.6 / 0.2.0 / 0.2.1-rc.2）", () => {
+test("isPatchResultSoftOk: drifted 는 Apply 를 막지 않는다(0.1.6 / 0.2.0 / 0.2.1-rc.2 와 호환)", () => {
   assert.equal(isPatchResultSoftOk({ status: "drifted" }, { id: 3, optional: false }), true);
 });
 
 /* ---------------------------------------------------------------------------
- * 幂等：二次应用不得继续增长（历史事故是每次 apply +841 字符、永不收敛）。
+ * 멱등성: 두 번째 적용이 계속 늘어나면 안 된다(과거 사고는 apply 마다 +841 자가
+ * 붙어 영원히 수렴하지 않았다).
  * ------------------------------------------------------------------------- */
 
-test("applyReplacementsToText: 全部字面量 pattern 二次应用不叠加", () => {
+test("applyReplacementsToText: 모든 리터럴 pattern 은 두 번째 적용에서 겹쳐 쌓이지 않는다", () => {
   const offenders = [];
   for (const p of ALL_PATCHES) {
     const reps = (p.replacements || []).filter((r) => r.pattern && !(r.pattern instanceof RegExp));
     if (reps.length === 0) continue;
-    // 用 pattern 本体合成输入：保证第一遍一定命中，从而真正检验收敛性。
+    // pattern 본문으로 입력을 합성한다: 첫 번째 적용이 반드시 맞아야 수렴성을 실제로 검증할 수 있다.
     const src = reps.map((r) => String(r.pattern)).join("\n");
     const once = applyReplacementsToText(src, p, "");
     const twice = applyReplacementsToText(once.text, p, "");
     if (twice.text !== once.text) offenders.push(`#${p.id} ${p.name}`);
   }
-  assert.deepEqual(offenders, [], `这些补丁二次应用还在变：${offenders.join(", ")}`);
+  assert.deepEqual(offenders, [], `이 패치들은 두 번째 적용에서도 계속 변한다: ${offenders.join(", ")}`);
 });
 
-test("applyReplacementsToText: 没有残留 pattern 时 changed=false", () => {
+test("applyReplacementsToText: 남은 pattern 이 없으면 changed=false", () => {
   const patch = { id: 9901, replacements: [{ pattern: "NOT_PRESENT_ANYWHERE", replace: "x" }] };
   const r = applyReplacementsToText("hello world", patch, "");
   assert.equal(r.changed, false);
   assert.equal(r.text, "hello world");
 });
 
-test("#77 锚点容错：官方在中间插一行也照样命中，且二次应用不叠加", () => {
+test("#77 앵커 관용도: 공식이 중간에 한 줄을 끼워 넣어도 그대로 맞고, 두 번째 적용에서 겹쳐 쌓이지 않는다", () => {
   const p77 = ALL_PATCHES.find((p) => p.id === 77);
-  assert.ok(p77, "找不到 #77");
-  // 0.2.1-rc.2 起的官方原文：中间多了一行 revised.clear()
+  assert.ok(p77, "#77 을 찾을 수 없다");
+  // 0.2.1-rc.2 부터의 공식 원문: 중간에 revised.clear() 한 줄이 늘었다.
   const host =
     "\t\t\tappend(record) {\n" +
     "\t\t\t\tconst event = record.event;\n" +
@@ -190,62 +194,63 @@ test("#77 锚点容错：官方在中间插一行也照样命中，且二次应�
     "\t\t\t\tif (this.revised.size > 0) this.revised.clear();\n" +
     "\t\t\t\tthis.inputs.set(event.seq, record);\n";
   const once = applyReplacementsToText(host, p77, "");
-  assert.equal(once.changed, true, "rc.2 的原文应当命中");
-  assert.ok(once.text.includes("isRewindMarker(event)"), "应当注入回退判断");
-  assert.ok(once.text.includes("if (this.revised.size > 0) this.revised.clear();"), "官方那行必须原样保留");
+  assert.equal(once.changed, true, "rc.2 의 원문은 맞아야 한다");
+  assert.ok(once.text.includes("isRewindMarker(event)"), "되돌림 판정이 주입되어야 한다");
+  assert.ok(once.text.includes("if (this.revised.size > 0) this.revised.clear();"), "공식의 그 줄은 그대로 보존되어야 한다");
   const twice = applyReplacementsToText(once.text, p77, "");
-  assert.equal(twice.text, once.text, "二次应用不得再插一遍");
+  assert.equal(twice.text, once.text, "두 번째 적용에서 다시 삽입되면 안 된다");
 });
 
 /* ---------------------------------------------------------------------------
- * 命中数契约：官方同名代码多一处就该拒写，而不是把两处一起改掉。
+ * 매치 수 계약: 공식에 같은 이름의 코드가 한 군데 더 있으면 둘 다 고치는 게 아니라
+ * 쓰기를 거부해야 한다.
  * ------------------------------------------------------------------------- */
 
-test("applyReplacementsToText: expect 命中数不符时拒写并回传实际命中数", () => {
+test("applyReplacementsToText: expect 매치 수가 맞지 않으면 쓰기를 거부하고 실제 매치 수를 돌려준다", () => {
   const patch = { id: 9902, replacements: [{ pattern: "NEEDLE", replace: "X", expect: 1 }] };
   const r = applyReplacementsToText("NEEDLE NEEDLE", patch, "");
-  assert.ok(r.hitMismatch, "应当回传 hitMismatch");
+  assert.ok(r.hitMismatch, "hitMismatch 를 돌려줘야 한다");
   assert.equal(r.hitMismatch.expected, 1);
   assert.equal(r.hitMismatch.actual, 2);
-  assert.equal(r.text, "NEEDLE NEEDLE", "拒写时原文必须原样返回");
+  assert.equal(r.text, "NEEDLE NEEDLE", "쓰기를 거부할 때는 원문을 그대로 반환해야 한다");
   assert.equal(r.changed, false);
 });
 
-test("applyReplacementsToText: expect 命中数一致时正常替换", () => {
+test("applyReplacementsToText: expect 매치 수가 일치하면 정상 치환한다", () => {
   const patch = { id: 9903, replacements: [{ pattern: "NEEDLE", replace: "X", expect: 1 }] };
   const r = applyReplacementsToText("a NEEDLE b", patch, "");
   assert.equal(r.hitMismatch, undefined);
   assert.equal(r.text, "a X b");
 });
 
-test("applyReplacementsToText: expect=1 但一处都没命中也算不符（不许静默跳过）", () => {
+test("applyReplacementsToText: expect=1 인데 한 곳도 안 맞아도 불일치다(조용히 건너뛰면 안 된다)", () => {
   const patch = { id: 9905, replacements: [{ pattern: "NEEDLE", replace: "X", expect: 1 }] };
   const r = applyReplacementsToText("nothing here", patch, "");
-  assert.ok(r.hitMismatch, "0 次命中同样是失配");
+  assert.ok(r.hitMismatch, "0 회 매치도 불일치다");
   assert.equal(r.hitMismatch.actual, 0);
   assert.equal(r.changed, false);
 });
 
-test("applyReplacementsToText: 未声明 expect 时保持旧行为（全量替换）", () => {
+test("applyReplacementsToText: expect 를 선언하지 않으면 기존 동작을 유지한다(전량 치환)", () => {
   const patch = { id: 9904, replacements: [{ pattern: "N", replace: "X" }] };
   const r = applyReplacementsToText("N N", patch, "");
   assert.equal(r.hitMismatch, undefined);
   assert.equal(r.text, "X X");
 });
 
-test("applyReplacementsToText: 正则 pattern 的 expect 同样生效（官方复制成两份就拒写）", () => {
+test("applyReplacementsToText: 정규식 pattern 의 expect 도 동일하게 적용된다(공식이 두 벌로 복제되면 쓰기 거부)", () => {
   const patch = { id: 9906, replacements: [{ pattern: /NEEDLE/g, replace: "X", expect: 1 }] };
   const r = applyReplacementsToText("NEEDLE NEEDLE", patch, "");
-  assert.ok(r.hitMismatch, "正则也必须遵守命中数契约");
+  assert.ok(r.hitMismatch, "정규식도 매치 수 계약을 지켜야 한다");
   assert.equal(r.hitMismatch.actual, 2);
-  assert.equal(r.text, "NEEDLE NEEDLE", "拒写时原文必须原样返回");
+  assert.equal(r.text, "NEEDLE NEEDLE", "쓰기를 거부할 때는 원문을 그대로 반환해야 한다");
 });
 
 /* ---------------------------------------------------------------------------
- * 宿主版本门禁
+ * 호스트 버전 게이트
  * ------------------------------------------------------------------------- */
 
-test("parseHostVersion: 拆出主次修订与预发布段", () => {
+test("parseHostVersion: 주/부/수정 버전과 프리릴리스 구간을 분리한다", () => {
   assert.deepEqual(parseHostVersion("0.2.1-rc.3"), {
     major: 0, minor: 2, patch: 1, pre: ["rc", "3"],
   });

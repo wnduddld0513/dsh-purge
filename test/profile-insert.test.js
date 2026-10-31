@@ -34,7 +34,7 @@ function withTempPatch(content) {
   return dir;
 }
 
-/** 去掉注释和空行后，统计顶层 `- insert:` 组数（判定是不是第二个文档）。 */
+/** 주석과 빈 줄을 제거한 뒤 최상위 `- insert:` 그룹 수를 센다(두 번째 문서가 되었는지 판정). */
 function topLevelInsertGroups(text) {
   const lines = String(text || "").split(/\r?\n/);
   let count = 0;
@@ -46,13 +46,13 @@ function topLevelInsertGroups(text) {
   return count;
 }
 
-test("URL 键解析不被冒号截断", () => {
+test("URL 키 파싱이 콜론에서 잘리지 않는다", () => {
   const parsed = parseAllowBuildLine(`  dsh-purge@${MASTER_URL}: true`);
   assert.equal(parsed.key, `dsh-purge@${MASTER_URL}`);
   assert.equal(parsed.value, "true");
 });
 
-test("畸形键也解析成整键（自愈时统一丢弃）", () => {
+test("기형 키도 통째로 파싱한다(자가 치유 시 일괄 폐기)", () => {
   assert.deepEqual(parseAllowBuildLine("  dsh-purge@https: true"), {
     key: "dsh-purge@https",
     value: "true",
@@ -63,7 +63,7 @@ test("畸形键也解析成整键（自愈时统一丢弃）", () => {
   });
 });
 
-test("行尾没有值的 `key:` 解析为空值", () => {
+test("행 끝에 값이 없는 `key:` 는 빈 값으로 파싱된다", () => {
   assert.deepEqual(parseAllowBuildLine("  dsh-purge@https:"), {
     key: "dsh-purge@https",
     value: "",
@@ -74,25 +74,25 @@ test("行尾没有值的 `key:` 解析为空值", () => {
   });
 });
 
-test("引号包裹的键照旧解析", () => {
+test("따옴표로 감싼 키도 예전처럼 파싱한다", () => {
   const spec = `dsh-purge@${MASTER_URL}`;
   for (const line of [`  "${spec}": true`, `  '${spec}': true`]) {
     assert.deepEqual(parseAllowBuildLine(line), { key: spec, value: "true" });
   }
 });
 
-test("URL 键写回带引号且 round-trip 无损", () => {
+test("URL 키는 따옴표와 함께 기록되고 round-trip 이 무손실이다", () => {
   const spec = `dsh-purge@${MASTER_URL}`;
   const line = formatAllowBuildLine(spec);
   assert.equal(line, `  "${spec}": true`);
   assert.deepEqual(parseAllowBuildLine(line), { key: spec, value: "true" });
-  // 不含 URL 的键保持无引号，round-trip 同样无损
+  // URL 이 들어 있지 않은 키는 따옴표 없이 유지되고 round-trip 도 무손실이다
   const plain = formatAllowBuildLine("dsh-purge");
   assert.equal(plain, "  dsh-purge: true");
   assert.deepEqual(parseAllowBuildLine(plain), { key: "dsh-purge", value: "true" });
 });
 
-test("污染的 allowBuilds 重写后只剩期望键", () => {
+test("오염된 allowBuilds 를 재작성하면 기대 키만 남는다", () => {
   const polluted = [
     "packages:",
     "  - '.'",
@@ -109,24 +109,24 @@ test("污染的 allowBuilds 重写后只剩期望键", () => {
   ].join("\n");
   const next = rewritePnpmAllowBuilds(polluted);
   const keys = next.split("\n").filter((line) => parseAllowBuildLine(line)).map((line) => parseAllowBuildLine(line).key);
-  // 期望键：只有裸包名（#185，不再写 URL 键）
+  // 기대 키: 맨 패키지 이름만(#185, 더 이상 URL 키를 쓰지 않는다)
   const wanted = ["cpu-features", "ssh2", ...purgePnpmBuildSpecs()];
   assert.deepEqual([...new Set(keys)], wanted);
-  // 畸形历史键一个都不留
+  // 기형 레거시 키는 하나도 남지 않는다
   for (const bad of [`dsh-purge@1.1.81`, `dsh-purge@https`]) {
     assert.equal(keys.includes(bad), false, `should drop ${bad}`);
   }
-  // 重复出现过的 `dsh-purge@https` 只允许来自 wanted 精确键，且不重复
+  // 중복 등장했던 `dsh-purge@https` 는 wanted 의 정확한 키에서만 나올 수 있고, 중복되지 않는다
   assert.equal(keys.filter((key) => key.startsWith("dsh-purge")).length, purgePnpmBuildSpecs().length);
-  // 保留段的结构仍然合法
+  // 보존 구간의 구조도 여전히 유효하다
   assert.equal(validateAllowBuildRewrite(next), true);
 });
 
-test("非 purge 键原样保留，无 allowBuilds 段时追加", () => {
+test("purge 가 아닌 키는 그대로 보존되고, allowBuilds 구간이 없으면 추가된다", () => {
   const base = "packages:\n  - '.'\n";
   const next = rewritePnpmAllowBuilds(base);
   assert.equal(next.startsWith("packages:\n  - '.'\n\nallowBuilds:\n"), true);
-  // 追加的是期望键（裸包名 + package.json 的 tarball）
+  // 추가되는 것은 기대 키(맨 패키지 이름 + package.json 의 tarball)
   for (const spec of purgePnpmBuildSpecs()) {
     const escaped = formatAllowBuildLine(spec).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     assert.match(next, new RegExp(`^${escaped}$`, "m"));
@@ -137,17 +137,17 @@ test("非 purge 键原样保留，无 allowBuilds 段时追加", () => {
   assert.match(next2, /^ {2}ssh2: true$/m);
 });
 
-test("写前校验：重复顶层键 / 重复 allowBuilds 键 / 解析不了的行判无效", () => {
+test("쓰기 전 검증: 최상위 키 중복 / allowBuilds 키 중복 / 파싱할 수 없는 행은 무효로 판정한다", () => {
   assert.equal(validateAllowBuildRewrite("packages:\n  - '.'\n\npackages:\n  - \"..\"\n"), false);
   assert.equal(validateAllowBuildRewrite("allowBuilds:\n  cpu-features: true\n  cpu-features: true\n"), false);
-  // 没有键值分隔的裸行解析不出来，校验必须挡下
-  assert.equal(validateAllowBuildRewrite("allowBuilds:\n  不是键值对\n"), false);
-  assert.equal(validateAllowBuildRewrite("allowBuilds:\n# 注释行放行\n  ssh2: true\n"), true);
+  // 키-값 구분자가 없는 맨 행은 파싱되지 않으므로 검증이 반드시 막아야 한다
+  assert.equal(validateAllowBuildRewrite("allowBuilds:\n  \u4e0d\u662f\u952e\u503c\u5bf9\n"), false);
+  assert.equal(validateAllowBuildRewrite("allowBuilds:\n# \u6ce8\u91ca\u884c\u653e\u884c\n  ssh2: true\n"), true);
 });
 
-test("期望键只有裸包名，不含任何 URL 键（#185）", () => {
-  // pnpm 11 遇到 `dsh-purge@https://...` 会报 ERR_PNPM_INVALID_VERSION_UNION，
-  // allowBuilds 按包名匹配即可，tarball / git / registry 安装都放行
+test("기대 키는 맨 패키지 이름뿐이고 URL 키를 포함하지 않는다(#185)", () => {
+  // pnpm 11 은 `dsh-purge@https://...` 를 만나면 ERR_PNPM_INVALID_VERSION_UNION 을 낸다.
+  // allowBuilds 는 패키지 이름으로 매칭하면 충분하므로 tarball / git / registry 설치 모두 허용된다
   assert.deepEqual(purgePnpmBuildSpecs(), ["dsh-purge"]);
   const dir = withTempProfile([
     "lockfileVersion: '9.0'",
@@ -164,7 +164,7 @@ test("期望键只有裸包名，不含任何 URL 键（#185）", () => {
   assert.deepEqual(purgePnpmBuildSpecs(dir), ["dsh-purge"]);
 });
 
-test("输入只含 URL 键时重写后只剩裸包名", () => {
+test("입력에 URL 키만 있으면 재작성 후 맨 패키지 이름만 남는다", () => {
   const onlyUrl = [
     "allowBuilds:",
     `  "dsh-purge@${MASTER_URL}": true`,
@@ -179,7 +179,7 @@ test("输入只含 URL 键时重写后只剩裸包名", () => {
   assert.equal(validateAllowBuildRewrite(next), true);
 });
 
-test("固定 commit 安装：重写后只剩裸包名，历史 URL / 畸形键全清", () => {
+test("고정 commit 설치: 재작성 후 맨 패키지 이름만 남고, 레거시 URL / 기형 키는 전부 정리된다", () => {
   const dir = withTempProfile([
     "lockfileVersion: '9.0'",
     "",
@@ -210,11 +210,11 @@ test("固定 commit 安装：重写后只剩裸包名，历史 URL / 畸形键�
   assert.equal(keys.includes(`dsh-purge@${MASTER_URL}`), false);
   assert.equal(keys.includes("dsh-purge@https"), false);
   assert.equal(keys.includes("ssh2"), true);
-  // 只写裸包名，不带引号
+  // 맨 패키지 이름만 쓰고 따옴표는 붙이지 않는다
   assert.equal(next.split("\n").some((line) => line === "  dsh-purge: true"), true);
 });
 
-test("幂等：健康文件重写输出等于输入，零写入", () => {
+test("멱등성: 건강한 파일은 재작성 출력이 입력과 같고, 쓰기가 일어나지 않는다", () => {
   const dir = withTempProfile();
   const fp = path.join(dir, "pnpm-workspace.yaml");
   const healthy = [
@@ -238,7 +238,7 @@ test("幂等：健康文件重写输出等于输入，零写入", () => {
   assert.equal(fs.statSync(fp).mtimeMs, statBefore.mtimeMs);
 });
 
-test("幂等：第二次 ensure 不再写盘（自愈后收敛）", () => {
+test("멱등성: 두 번째 ensure 는 디스크에 더 쓰지 않는다(자가 치유 후 수렴)", () => {
   const dir = withTempProfile();
   const fp = path.join(dir, "pnpm-workspace.yaml");
   const polluted = `allowBuilds:\n  ssh2: true\n  dsh-purge@https: true\n  dsh-purge@1.1.81: true\n`;
@@ -246,21 +246,21 @@ test("幂等：第二次 ensure 不再写盘（自愈后收敛）", () => {
   const first = ensurePnpmAllowBuild(dir);
   assert.equal(first.wrote, true);
   const healed = fs.readFileSync(fp, "utf8");
-  // 畸形历史键被清掉
+  // 기형 레거시 키가 제거되었다
   assert.equal(healed.includes("dsh-purge@https"), false);
   assert.equal(healed.includes("dsh-purge@1.1.81"), false);
-  // 只剩裸包名
+  // 맨 패키지 이름만 남는다
   assert.equal(healed.includes("  dsh-purge: true"), true);
   const second = ensurePnpmAllowBuild(dir);
   assert.equal(second.wrote, false);
   assert.equal(fs.readFileSync(fp, "utf8"), healed);
 });
 
-// ---- #191：cordis.patch.yml 是 `[]` 时追加会导致宿主启动解析失败 ----
+// ---- #191: cordis.patch.yml 이 `[]` 일 때 추가하면 호스트 기동 파싱이 실패한다 ----
 
-test("patch 形态分类：空 / 空 flow / 块序列 / 非空 flow / 未知", () => {
+test("patch 형태 분류: 빈 파일 / 빈 flow / 블록 시퀀스 / 비어 있지 않은 flow / 알 수 없음", () => {
   assert.equal(classifyPatchBody("").kind, "empty");
-  assert.equal(classifyPatchBody("# 只有注释\n\n").kind, "empty");
+  assert.equal(classifyPatchBody("# \u53ea\u6709\u6ce8\u91ca\n\n").kind, "empty");
   assert.equal(classifyPatchBody("[]").kind, "empty-flow");
   assert.equal(classifyPatchBody("# c\n[]\n").kind, "empty-flow");
   assert.equal(classifyPatchBody("---\n[]\n").kind, "empty-flow");
@@ -269,7 +269,7 @@ test("patch 形态分类：空 / 空 flow / 块序列 / 非空 flow / 未知", (
   assert.equal(classifyPatchBody("foo: bar\n").kind, "unknown");
 });
 
-test("空文件：直接写 insert 块", () => {
+test("빈 파일: insert 블록을 그대로 쓴다", () => {
   const dir = withTempPatch(undefined);
   const fp = path.join(dir, "cordis.patch.yml");
   const result = ensureProfileBodyInsert(dir);
@@ -278,7 +278,7 @@ test("空文件：直接写 insert 块", () => {
   assert.equal(fs.readFileSync(fp, "utf8"), INSERT_BLOCK);
 });
 
-test("只有注释和空行：写 insert 块，注释保留", () => {
+test("주석과 빈 줄만 있는 경우: insert 블록을 쓰고 주석은 보존한다", () => {
   const dir = withTempPatch("# overrides, disables, and insertions\n\n");
   const fp = path.join(dir, "cordis.patch.yml");
   const result = ensureProfileBodyInsert(dir);
@@ -290,7 +290,7 @@ test("只有注释和空行：写 insert 块，注释保留", () => {
   assert.equal(topLevelInsertGroups(text), 1);
 });
 
-test("注释 + `[]`：`[]` 被替换成 insert 块，注释保留，无第二个文档", () => {
+test("주석 + `[]`: `[]` 가 insert 블록으로 치환되고 주석은 보존되며 두 번째 문서가 되지 않는다", () => {
   const dir = withTempPatch("# overrides, disables, and insertions\n[]\n");
   const fp = path.join(dir, "cordis.patch.yml");
   const result = ensureProfileBodyInsert(dir);
@@ -300,11 +300,11 @@ test("注释 + `[]`：`[]` 被替换成 insert 块，注释保留，无第二个
   assert.equal(text.includes("[]"), false);
   assert.equal(text.includes("# overrides, disables, and insertions"), true);
   assert.equal(text.includes("- insert:"), true);
-  // 只有一个顶层 `- insert:` 组 → 没有变成第二个文档
+  // 최상위 `- insert:` 그룹이 하나뿐 → 두 번째 문서가 되지 않았다
   assert.equal(topLevelInsertGroups(text), 1);
 });
 
-test("`---` 前缀 + `[]`：同样替换，无第二个文档", () => {
+test("`---` 접두사 + `[]`: 마찬가지로 치환되고 두 번째 문서가 되지 않는다", () => {
   const dir = withTempPatch("---\n[]\n");
   const fp = path.join(dir, "cordis.patch.yml");
   const result = ensureProfileBodyInsert(dir);
@@ -315,7 +315,7 @@ test("`---` 前缀 + `[]`：同样替换，无第二个文档", () => {
   assert.equal(topLevelInsertGroups(text), 1);
 });
 
-test("正常块序列：沿用旧的追加行为", () => {
+test("정상 블록 시퀀스: 기존 추가 동작을 그대로 따른다", () => {
   const original = "- id: foo\n  name: foo\n";
   const dir = withTempPatch(original);
   const fp = path.join(dir, "cordis.patch.yml");
@@ -328,7 +328,7 @@ test("正常块序列：沿用旧的追加行为", () => {
   assert.equal(topLevelInsertGroups(text), 1);
 });
 
-test("非空 flow 序列：宿主内容不动，返回 ok:false", () => {
+test("비어 있지 않은 flow 시퀀스: 호스트 내용은 건드리지 않고 ok:false 를 돌려준다", () => {
   const original = "[a, b]\n";
   const dir = withTempPatch(original);
   const fp = path.join(dir, "cordis.patch.yml");
@@ -338,7 +338,7 @@ test("非空 flow 序列：宿主内容不动，返回 ok:false", () => {
   assert.equal(fs.readFileSync(fp, "utf8"), original);
 });
 
-test("已有 dsh-purge 本体行：零写入", () => {
+test("이미 dsh-purge 본체 행이 있는 경우: 쓰기가 일어나지 않는다", () => {
   const original = "- insert:\n    - id: dsh-purge\n      name: dsh-purge\n";
   const dir = withTempPatch(original);
   const fp = path.join(dir, "cordis.patch.yml");
@@ -348,7 +348,7 @@ test("已有 dsh-purge 本体行：零写入", () => {
   assert.equal(fs.readFileSync(fp, "utf8"), original);
 });
 
-test("`[]` 替换后幂等：再 ensure 一次零写入", () => {
+test("`[]` 치환 후 멱등성: ensure 를 한 번 더 실행해도 쓰기가 없다", () => {
   const dir = withTempPatch("# c\n[]\n");
   const fp = path.join(dir, "cordis.patch.yml");
   const first = ensureProfileBodyInsert(dir);

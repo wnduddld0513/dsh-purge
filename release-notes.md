@@ -1,14 +1,14 @@
 # 1.1.85
 
-## 中文
+## 한국어
 
-- 版本 **1.1.85**。
-- **#196**：修复深色模式下部分按钮白底白字、完全看不清的问题。
-  - 根因：宿主暗色主题把 `--dsw-alias-brand-primary` 解析成近白色（`neutral-bluish-50` `#f9fafb`）。插件里凡是"品牌色作底 + 白字"的按钮（设置页的「应用」「保存注入」、演练台的「保存」「检索」「检测连通性」以及各类主按钮）在暗色下就变成一整块白。
-  - 现在暗色（`body[data-ds-dark-theme]`、`[data-theme="dusk"]`）下主按钮统一用绿色实底 `#3d8f68` + 白字，悬停用更深的 `#347a59`；`-webkit-text-fill-color` 一并显式指定，避免宿主强制白字穿透。
-  - 报告里的步骤序号圆点（`.rt-rep-step-no`）同样改为绿底白字。
-  - 浅色模式表现不变；新增 `test/client-dark-theme.test.js` 静态守护这几条暗色规则。
-- 测试：84/84 通过。
+- 버전 **1.1.85**.
+- **#196**: 다크 모드에서 일부 버튼이 흰 배경에 흰 글자로 나와 전혀 보이지 않던 문제를 수정했습니다.
+  - 근본 원인: 호스트 다크 테마가 `--dsw-alias-brand-primary`를 거의 흰색(`neutral-bluish-50` `#f9fafb`)으로 해석합니다. 플러그인에서 "브랜드 색 배경 + 흰 글자"를 쓰던 버튼(설정 페이지의 "적용" "주입 저장", 드릴 콘솔의 "저장" "검색" "연결성 검사"와 각종 기본 버튼)이 다크 모드에서 통째로 흰 덩어리가 됩니다.
+  - 이제 다크 모드(`body[data-ds-dark-theme]`, `[data-theme="dusk"]`)에서 기본 버튼은 초록 실색 `#3d8f68` + 흰 글자로 통일하고, 호버에는 더 진한 `#347a59`를 씁니다. `-webkit-text-fill-color`도 함께 명시해 호스트가 강제하는 흰 글자가 새어 나오지 않게 했습니다.
+  - 보고서의 단계 번호 점(`.rt-rep-step-no`)도 같은 초록 배경 + 흰 글자로 바꿨습니다.
+  - 라이트 모드 동작은 그대로이며, `test/client-dark-theme.test.js`를 추가해 이 다크 모드 규칙들을 정적으로 지킵니다.
+- 테스트: 84/84 통과.
 
 ## English
 
@@ -22,22 +22,22 @@
 
 # 1.1.84
 
-## 中文
+## 한국어
 
-- 版本 **1.1.84**。
-- **尾部锚点与子代理审批接管**（接线 `anchor.js` / `subagent-control.js`）：
-  - 锚点段物理追加到 system prompt 的 sections 数组末尾（waterfall 按数组顺序渲染，order 不参与排序），把身份与格式规则放回 recency 位；已有同名段先滤再追加，不会出现两份。
-  - 锚点规则改为跟随操作者语言：中文请求回中文，锚点本身是英文不算语言指令；删掉写死的英文开头句（这是红队模式回答变英文的直接原因）。
-  - 子会话被宿主写成 `approval/policy = "never"` 时改回 `ask`，并在 `approval/request` 瀑布放行，子代理不再"一直被拒"。
-  - 回滚开关：`anchorMode: "off"`、`subagentControl: false`。
-- **红队模式中文化**：模式名与描述、角色名、五阶段攻击链、25 项计分规则与 POC 分类、技能修复说明、环境适配提示、面板与服务端报错、成果报告与成果复现报告全部回中文。
-- **#194**：desktop 端启动后窗口永不显示。
-  - hung-operator 提示改为按内容变更缓存（home + mtime + 已提交修订号），内容没变不再每轮重算约 23KB。
-  - 增加风暴熔断（10 秒 120 次）与慢调用熔断（1.5 秒触发、30 秒冷却），熔断期直接返回缓存文本，不挂死 desktop host。
-  - 同一次 assemble 的重复改写用 WeakMap 去重。
-  - 新增补丁 **#91**：宿主 `code === null || signal` 静默 resolve 前写一条 `[desktop.hostExit]` 到 `%TEMP%\dsh-purge-desktop.log`，保持不弹框但有据可查。
-- **#188（0.2.1-rc.4 专属部分）**：新增 **#89** 沙箱策略去品牌、**#90** skill-badge 描述中文化，扩展 **#32/#53** 的 rc.3 变体与 marker；三条新补丁均为 optional，宿主没有对应文件时静默跳过。
-- 测试：81/81 通过；新增锚点接线与红队文案测试。
+- 버전 **1.1.84**.
+- **꼬리 앵커와 하위 에이전트 승인 인수**(배선 `anchor.js` / `subagent-control.js`):
+  - 앵커 섹션을 system prompt의 sections 배열 끝에 물리적으로 덧붙입니다(waterfall은 배열 순서대로 렌더링하며 `order`는 정렬에 참여하지 않습니다). 이로써 정체성과 형식 규칙을 recency 위치로 되돌립니다. 같은 이름의 섹션이 이미 있으면 먼저 걸러낸 뒤 덧붙이므로 두 벌이 생기지 않습니다.
+  - 앵커 규칙이 운영자 언어를 따르도록 바꿨습니다: 중국어 요청에는 중국어로 답하고, 앵커 자체가 영어인 것은 언어 지시로 치지 않습니다. 하드코딩된 영어 시작 문장을 삭제했습니다(레드팀 모드 답변이 영어로 바뀌던 직접 원인).
+  - 자식 세션을 호스트가 `approval/policy = "never"`로 쓸 때 `ask`로 되돌리고 `approval/request` 워터폴에서 통과시키므로, 하위 에이전트가 더 이상 "계속 거부"되지 않습니다.
+  - 롤백 스위치: `anchorMode: "off"`, `subagentControl: false`.
+- **레드팀 모드 한국어화**: 모드 이름과 설명, 역할 이름, 5단계 공격 체인, 25개 채점 규칙과 POC 분류, 스킬 수정 안내, 환경 적응 힌트, 패널과 서버 오류, 결과 보고서와 결과 재현 보고서를 모두 한국어로 되돌렸습니다.
+- **#194**: desktop에서 실행 후 창이 끝내 표시되지 않던 문제.
+  - hung-operator 안내를 내용 변경 기준(home + mtime + 커밋된 리비전 번호)으로 캐시하도록 바꿨습니다. 내용이 그대로면 더 이상 매 라운드 약 23KB를 다시 계산하지 않습니다.
+  - 폭주 차단(10초 120회)과 느린 호출 차단(1.5초에 발동, 30초 쿨다운)을 추가했습니다. 차단 중에는 캐시된 텍스트를 바로 돌려주어 desktop host가 멈추지 않습니다.
+  - 같은 assemble에서의 중복 재작성은 WeakMap으로 중복 제거합니다.
+  - 새 패치 **#91**: 호스트가 `code === null || signal`을 조용히 resolve하기 전에 `%TEMP%\dsh-purge-desktop.log`에 `[desktop.hostExit]` 한 줄을 기록해, 대화상자는 띄우지 않으면서도 근거를 남깁니다.
+- **#188(0.2.1-rc.4 전용 부분)**: **#89** 샌드박스 정책 브랜드 제거, **#90** skill-badge 설명 한국어화를 추가하고 **#32/#53**의 rc.3 변형과 marker를 확장했습니다. 세 가지 새 패치는 모두 optional이라 호스트에 해당 파일이 없으면 조용히 건너뜁니다.
+- 테스트: 81/81 통과. 앵커 배선과 레드팀 문구 테스트를 추가했습니다.
 
 ## English
 
@@ -58,17 +58,17 @@
 
 # 1.1.83
 
-## 中文
+## 한국어
 
-- 版本 **1.1.83**。修复 bug，修复稳定性。
-- **#185**：修复 pnpm 11（DSH 内置 11.2.2）下 `pnpm install` 因 `allowBuilds` 崩溃的问题。
-  - 之前 profile 的 `pnpm-workspace.yaml` 会写入 `dsh-purge@https://...` 这类 URL 键，pnpm 把它当版本联合解析，直接报 `[ERR_PNPM_INVALID_VERSION_UNION] Invalid versions union`。
-  - 现在只写裸包名 `dsh-purge`：pnpm 的 `allowBuilds` 本来就按包名匹配，tarball / git / registry 三种安装形态都放行。
-  - 自愈加强：所有 `dsh-purge@*` 历史键（URL 键、旧截断键 `dsh-purge@https`、`@1.1.81` 之类版本键）一律清掉，只保留裸包名；非 dsh-purge 的键原样保留。
-- **#191**：修复 macOS DSH Desktop（0.2.1-rc.4）启动崩溃 `failed to parse overlay .../cordis.patch.yml`。
-  - 宿主生成的 profile 层 `cordis.patch.yml` 可能整体只有一个空 flow 序列 `[]`，那本身就是一个完整 YAML 文档；再往文件尾追加 `- insert:` 会变成第二个文档，宿主解析直接失败。
-  - 现在写之前先判断数据部分形态：空 flow 序列（`[]`，可带 `---` 前缀）→ **替换** `[]` 整行而不是追加；空文件 / 只有注释 → 直接写 insert 块；正常块序列 → 沿用原来的追加行为。
-  - 非空 flow 序列（宿主或用户自己的内容）认不准就不动，返回 `{ ok: false, wrote: false }`，宁可留着也不写坏。
+- 버전 **1.1.83**. 버그 수정 및 안정성 개선.
+- **#185**: pnpm 11(DSH 내장 11.2.2)에서 `allowBuilds` 때문에 `pnpm install`이 크래시하던 문제를 수정했습니다.
+  - 이전에는 profile의 `pnpm-workspace.yaml`에 `dsh-purge@https://...` 같은 URL 키가 기록되었고, pnpm이 이를 버전 유니온으로 해석해 `[ERR_PNPM_INVALID_VERSION_UNION] Invalid versions union`을 바로 냈습니다.
+  - 이제는 꾸러미 이름만 `dsh-purge`로 씁니다: pnpm의 `allowBuilds`는 원래 패키지 이름으로 매칭하므로 tarball / git / registry 세 가지 설치 형태를 모두 허용합니다.
+  - 자가 치유 강화: 모든 `dsh-purge@*` 과거 키(URL 키, 잘린 옛 키 `dsh-purge@https`, `@1.1.81` 같은 버전 키)를 일괄로 지우고 꾸러미 이름만 남깁니다. dsh-purge가 아닌 키는 그대로 보존합니다.
+- **#191**: macOS DSH Desktop(0.2.1-rc.4) 시작 크래시 `failed to parse overlay .../cordis.patch.yml`을 수정했습니다.
+  - 호스트가 생성한 profile 계층 `cordis.patch.yml`은 전체가 빈 flow 시퀀스 `[]` 하나일 수 있고, 그것 자체가 완전한 YAML 문서입니다. 여기에 파일 끝으로 `- insert:`를 덧붙이면 두 번째 문서가 되어 호스트 파싱이 바로 실패합니다.
+  - 이제 쓰기 전에 데이터 부분의 형태를 먼저 판정합니다: 빈 flow 시퀀스(`[]`, `---` 접두사 가능) → `[]` 줄 전체를 **교체**하고 덧붙이지 않습니다; 빈 파일 / 주석만 → insert 블록을 바로 씁니다; 정상 블록 시퀀스 → 기존 덧붙이기 동작을 유지합니다.
+  - 비어 있지 않은 flow 시퀀스(호스트나 사용자 자신의 내용)는 확신할 수 없으면 건드리지 않고 `{ ok: false, wrote: false }`를 반환합니다. 잘못 쓰느니 남겨 두는 편을 택합니다.
 
 ## English
 
@@ -84,14 +84,14 @@
 
 # 1.1.82
 
-## 中文
+## 한국어
 
-- 版本 **1.1.82**。修复 bug，修复稳定性。
-- **#180**：修复 profile 的 `pnpm-workspace.yaml` `allowBuilds` 被反复写坏（`dsh-purge@https: true` 畸形键 → `ERR_PNPM_INVALID_VERSION_UNION`，重复键 → `duplicated mapping key`）。
-  - URL 键解析不再被冒号截断；写回含 `://` 的键自动加引号。
-  - 重写只保留精确等于期望键的 `dsh-purge@*`，旧污染键（畸形的、过期的版本/commit URL）自动清掉，不用手工修。
-  - 期望键优先从 profile 的 `pnpm-lock.yaml` 读实际解析的 tarball URL（固定 commit 安装也不再有双 URL 键），读不到才退回 `package.json`。
-  - 重写结果先过最小 YAML 校验（键不重复、round-trip 无损），不过就不写盘；健康文件零写入，启动不再反复重写。
+- 버전 **1.1.82**. 버그 수정 및 안정성 개선.
+- **#180**: profile의 `pnpm-workspace.yaml` `allowBuilds`가 반복해서 깨지던 문제(`dsh-purge@https: true` 기형 키 → `ERR_PNPM_INVALID_VERSION_UNION`, 중복 키 → `duplicated mapping key`)를 수정했습니다.
+  - URL 키를 파싱할 때 더 이상 콜론에서 잘리지 않으며, `://`가 들어간 키는 쓸 때 자동으로 따옴표를 붙입니다.
+  - 재작성 시 기대 키와 정확히 같은 `dsh-purge@*`만 남기고, 오염된 옛 키(기형 키, 지난 버전/commit URL)는 자동으로 정리되므로 손으로 고칠 필요가 없습니다.
+  - 기대 키는 profile의 `pnpm-lock.yaml`에서 실제로 해석된 tarball URL을 먼저 읽고(고정 commit 설치도 이제 URL 키가 두 개 생기지 않습니다), 읽지 못할 때만 `package.json`으로 물러납니다.
+  - 재작성 결과는 최소 YAML 검증(키 중복 없음, round-trip 무손실)을 먼저 통과해야 하며, 통과하지 못하면 디스크에 쓰지 않습니다. 건강한 파일은 쓰기가 0이라 시작할 때마다 다시 쓰지 않습니다.
 
 ## English
 
@@ -104,12 +104,12 @@
 
 # 1.1.81
 
-## 中文
+## 한국어
 
-- 版本 **1.1.81**。修复 bug，修复稳定性。
-- **#174**：识别 DSH NEXT 社区桌面（路径、进程、快捷方式、密封 asar）。`DSH_SURFACE=web` 也不再误报；不把任意 `app.asar` 当桌面。
-- **#175**：补 ip / 计分 / settle 单测，删草稿文档和 `.bak`。`npm test` 23 条全过。
-- **#171 / #173**：zip 目录条目和 skills `fs` 导入已在 1.1.80，本版用单测锁住。
+- 버전 **1.1.81**. 버그 수정 및 안정성 개선.
+- **#174**: DSH NEXT 커뮤니티 데스크톱을 인식합니다(경로, 프로세스, 바로가기, 밀봉 asar). `DSH_SURFACE=web`도 더 이상 잘못 보고하지 않으며, 아무 `app.asar`나 데스크톱으로 취급하지 않습니다.
+- **#175**: ip / 채점 / settle 단위 테스트를 보강하고 초안 문서와 `.bak`를 삭제했습니다. `npm test` 23개 모두 통과.
+- **#171 / #173**: zip 디렉터리 항목과 skills `fs` 임포트는 1.1.80에 이미 있었고, 이번 버전에서 단위 테스트로 고정했습니다.
 
 ## English
 
@@ -120,14 +120,14 @@
 
 # 1.1.80
 
-## 中文
+## 한국어
 
-- 版本 **1.1.80**。修复 bug，修复稳定性。
-- **#168**：pnpm 12 的 `allowBuilds` 把 `dsh-purge@codeload...` 也写成 `true`，装别的插件不再留下 `set this to true or false`。
-- **#169**：芯片 / 应用按钮强制系统字体和实色字，不再被宿主图标字体吃掉。
-- **#170**：纯 Node 解 zip 时目录条目建目录，不再写成同名空文件导致 EEXIST。
-- **#172**：`lib/skills.js` 补上 `fs`，#54 软链重叠守卫重新生效。
-- **#176**：写清 **不支持 DSH 0.2.1-rc.3 及更新的 rc**，请退回 **0.2.1-rc.2**。对不上的补丁待应用或跳过，不乱改文件。
+- 버전 **1.1.80**. 버그 수정 및 안정성 개선.
+- **#168**: pnpm 12의 `allowBuilds`가 `dsh-purge@codeload...`까지 `true`로 기록해, 다른 플러그인을 설치해도 더 이상 `set this to true or false`가 남지 않습니다.
+- **#169**: 칩 / 적용 버튼이 시스템 폰트와 실색 글자를 강제해, 더 이상 호스트 아이콘 폰트에 글자가 먹히지 않습니다.
+- **#170**: 순수 Node로 zip을 풀 때 디렉터리 항목은 디렉터리를 만들고, 같은 이름의 빈 파일을 써서 EEXIST가 나지 않습니다.
+- **#172**: `lib/skills.js`에 `fs`를 보강해 #54 심링크 중첩 가드가 다시 동작합니다.
+- **#176**: **DSH 0.2.1-rc.3 및 그 이후 rc는 지원하지 않습니다**를 분명히 밝힙니다. **0.2.1-rc.2**로 되돌리세요. 맞지 않는 패치는 적용 대기 또는 건너뜀으로 두고 파일을 함부로 고치지 않습니다.
 
 ## English
 
@@ -140,14 +140,14 @@
 
 # 1.1.79
 
-## 中文
+## 한국어
 
-- 版本 **1.1.79**。修复 bug，修复稳定性。
-- **#165**：社区版 DS Bot / DeepSeek Bot 按桌面宿主识别（`ds-bot` profile、Electron asar），不再误报 `set DSH_BASE`。
-- **#166**：pnpm 12 拦 `postinstall` 时补 `allowBuilds`，并写清 `--allow-build=dsh-purge` / `approve-builds`。
-- **#167**：升级后补回 `bundles` + 本体 insert，空芯片不再把启动钮藏掉，1.1.74 有的按钮会回来。
-- 应用/还原/卸载进度条跟 job 阶段；主智能体和子智能体同一份注入、权限和能力协议。
-- 新建会话不再把 `dsh-purge` 芯片甩到行尾。
+- 버전 **1.1.79**. 버그 수정 및 안정성 개선.
+- **#165**: 커뮤니티판 DS Bot / DeepSeek Bot을 데스크톱 호스트로 인식합니다(`ds-bot` profile, Electron asar). 더 이상 `set DSH_BASE`를 잘못 보고하지 않습니다.
+- **#166**: pnpm 12가 `postinstall`을 막을 때 `allowBuilds`를 보강하고, `--allow-build=dsh-purge` / `approve-builds`를 분명히 적었습니다.
+- **#167**: 업그레이드 후 `bundles` + 본체 insert를 복구해, 빈 칩이 시작 버튼을 숨기지 않으며 1.1.74에 있던 버튼이 돌아옵니다.
+- 적용/복원/제거 진행률이 job 단계를 따릅니다. 메인 에이전트와 하위 에이전트가 같은 주입, 권한, 능력 프로토콜을 씁니다.
+- 새 세션에서 `dsh-purge` 칩을 더 이상 줄 끝으로 밀어내지 않습니다.
 
 ## English
 
@@ -160,11 +160,11 @@
 
 # 1.1.78
 
-## 中文
+## 한국어
 
-- 版本 **1.1.78**。修复 bug：停用/卸载后无法新建会话。
-- **#108**：停用或卸载时把 `agent-preset-registry.selectedDefault` 从 `redteam` 改回 `standard`，并清掉 `$DSH_HOME/.agent-presets/redteam`。热重载不会冲掉用户设的红队默认。
-- 卸载同时处理 `dsh.profile.bundles` / `dsh.profile.plugins`，桌面 profile 不再残留 `dsh-purge`。
+- 버전 **1.1.78**. 버그 수정: 비활성화/제거 후 새 세션을 만들 수 없던 문제.
+- **#108**: 비활성화 또는 제거 시 `agent-preset-registry.selectedDefault`를 `redteam`에서 `standard`로 되돌리고, `$DSH_HOME/.agent-presets/redteam`을 지웁니다. 핫 리로드가 사용자가 설정한 레드팀 기본값을 덮어쓰지 않습니다.
+- 제거 시 `dsh.profile.bundles` / `dsh.profile.plugins`도 함께 처리해, 데스크톱 profile에 `dsh-purge`가 남지 않습니다.
 
 ## English
 

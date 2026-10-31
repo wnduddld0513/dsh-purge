@@ -15,8 +15,8 @@ function rule(selector) {
 	return brace < 0 || end < 0 ? "" : client.slice(brace + 1, end);
 }
 
-test("#196 暗色宿主主按钮不再使用近白色品牌底", () => {
-	// 宿主暗色下 --dsw-alias-brand-primary = #f9fafb，直接拿它作底会白底白字。
+test("#196 어두운 호스트의 기본 버튼이 더 이상 거의 흰색인 브랜드 배경을 쓰지 않는다", () => {
+	// 호스트 다크 모드에서 --dsw-alias-brand-primary = #f9fafb 이므로 그대로 배경으로 쓰면 흰 배경에 흰 글자가 된다.
 	for (const selector of [
 		'body[data-ds-dark-theme] .dshp-btn-primary',
 		'.dshp-root[data-theme="dusk"] .dshp-btn-primary',
@@ -31,12 +31,12 @@ test("#196 暗色宿主主按钮不再使用近白色品牌底", () => {
 	}
 });
 
-test("#196 暗色主按钮悬停仍有可读底色", () => {
+test("#196 어두운 테마에서 기본 버튼 호버 시에도 읽을 수 있는 배경색을 유지한다", () => {
 	const body = rule('body[data-ds-dark-theme] .dshp-btn-primary:hover:not(:disabled)');
 	assert.match(body, /background:#347a59!important/);
 });
 
-test("#196 报告步骤序号圆点暗色下保持绿底白字", () => {
+test("#196 보고서 단계 번호 원형 마커는 어두운 테마에서도 초록 배경에 흰 글자를 유지한다", () => {
 	const at = client.indexOf('body[data-ds-dark-theme] .rt-rep-step-no,.dshp-dock[data-theme="dusk"] .rt-rep-step-no');
 	assert.notEqual(at, -1);
 	const body = client.slice(at, client.indexOf("}", at));

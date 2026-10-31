@@ -24,11 +24,11 @@ function printStatus(state) {
   out.push(`  주입 파일       ${state.override_path}`);
   out.push(`  주입 상태       ${state.override_status}`);
   out.push("");
-  out.push(`  补丁 ${state.patches_applied}/${core.ALL_PATCHES.length} 已清洗, ${state.patches_pending} 待清洗`
-    + (state.patches_drifted ? `, ${state.patches_drifted} 漂移（官方原文已改，需更新 pattern）` : ""));
+  out.push(`  패치 ${state.patches_applied}/${core.ALL_PATCHES.length} 정리됨, ${state.patches_pending} 정리 대기`
+    + (state.patches_drifted ? `, ${state.patches_drifted} 드리프트(공식 원문이 바뀌어 pattern 갱신 필요)` : ""));
   if (state.host_version) {
-    const compat = state.host_supported === false ? `  ← 未适配：插件声明 ${state.host_target || "?"}` : "";
-    out.push(`  宿主版本 / host  ${state.host_version}${compat}`);
+    const compat = state.host_supported === false ? `  ← 미적용: 플러그인 선언 ${state.host_target || "?"}` : "";
+    out.push(`  호스트 버전 / host  ${state.host_version}${compat}`);
   }
   for (const p of core.ALL_PATCHES) {
     const s = state.patch_status[p.id];
