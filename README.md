@@ -1,4 +1,4 @@
-<p align="center"><strong>Version 1.1.86</strong></p>
+<p align="center"><strong>Version 1.1.87</strong></p>
 
 <p align="center">
   <em>DeepSeek Harness jailbreak: every model, swap prompts per model. Default prompt for "Little Code Sauce". Please star ⭐ If you build on this, see Attribution required.</em>
@@ -52,7 +52,7 @@ The author's personal channel: [t.me/LLM_PoJia](https://t.me/LLM_PoJia). Notes a
 
 ## What this is
 
-**dsh-purge** is a cybersecurity red-team plugin for the official [DeepSeek Harness](https://www.deepseek.com/harness/) already installed on your machine. **1.1.86** targets **DSH 0.2.1-rc.2** (0.2.0 still works). **DSH 0.2.1-rc.3 and newer RCs are not supported.** Official **Web** (`dsh web`) and the official **desktop EXE** are both supported. Install and Apply them separately.
+**dsh-purge** is a cybersecurity red-team plugin for the official [DeepSeek Harness](https://www.deepseek.com/harness/) already installed on your machine. **1.1.87** targets **DSH 0.2.1-rc.2** (0.2.0 still works). **DSH 0.2.1-rc.3 and newer RCs are not supported.** Official **Web** (`dsh web`) and the official **desktop EXE** are both supported. Install and Apply them separately.
 
 Harness does more than forward a prompt. It rewrites prompts, approval gates, sandbox policy, and session migration at runtime. Asking only “will the model answer” treats a host-layer block as a model refusal. This plugin separates those two layers on your own install, for controlled evaluation and for seeing which default policy is too tight.
 
@@ -126,9 +126,9 @@ This repo is [Apache License 2.0](./LICENSE). Forks and redistributions must kee
 
 ## Supported hosts
 
-**1.1.86 targets DSH 0.2.1-rc.2.** 0.2.0 still works. Do not apply it to 0.1.x.
+**1.1.87 targets DSH 0.2.1-rc.2.** 0.2.0 still works. Do not apply it to 0.1.x.
 
-- **dsh 0.2.1-rc.2** (official desktop / official `dsh web`): use **1.1.86**. Fixes `{{cwd}}` / `[cwd]` crash, patch #40 match, dropped `toolFilter`, host `dsh-tools` resolve, hostFs fd, desktop helper self-kill, `file:` archive update, Ctrl+Enter steer.
+- **dsh 0.2.1-rc.2** (official desktop / official `dsh web`): use **1.1.87**. Fixes `{{cwd}}` / `[cwd]` crash, patch #40 match, dropped `toolFilter`, host `dsh-tools` resolve, hostFs fd, desktop helper self-kill, `file:` archive update, Ctrl+Enter steer.
 - **dsh 0.2.0-rc.2**: use **1.1.40** or newer; this line also installs.
 - **dsh 0.1.7** (incl. rc.1 / rc.2): use **1.1.39** or older — pick the tag on [Releases](https://github.com/YuJunZhiXue/dsh-purge/releases).
 - **dsh 0.2.1-rc.3 / rc.4 and newer are not supported.** Unmatched patches stay pending or skipped; nothing is rewritten blindly. Stay on **0.2.1-rc.2**.
@@ -203,7 +203,7 @@ node node_modules/dsh-purge/scripts/ensure-profile-bundle.mjs
 - On the desktop client you can also click the button (`dsh://` deep link; it still downloads the same tarball).
 
 <p align="center">
-  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.1.86&repo=wnduddld0513%2Fdsh-purge-kr&permissions=%EC%8B%9C%EC%8A%A4%ED%85%9C%20%ED%94%84%EB%A1%AC%ED%94%84%ED%8A%B8%20%EC%A3%BC%EC%9E%85%2C%EB%A1%9C%EC%BB%AC%20%ED%8C%A8%EC%B9%98%2C%EC%84%A4%EC%A0%95%20%ED%8E%98%EC%9D%B4%EC%A7%80&downloadUrl=https%3A%2F%2Fcodeload.github.com%2Fwnduddld0513%2Fdsh-purge-kr%2Ftar.gz%2Frefs%2Fheads%2Fmaster"><strong>Install in desktop client</strong></a>
+  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.1.87&repo=wnduddld0513%2Fdsh-purge-kr&permissions=%EC%8B%9C%EC%8A%A4%ED%85%9C%20%ED%94%84%EB%A1%AC%ED%94%84%ED%8A%B8%20%EC%A3%BC%EC%9E%85%2C%EB%A1%9C%EC%BB%AC%20%ED%8C%A8%EC%B9%98%2C%EC%84%A4%EC%A0%95%20%ED%8E%98%EC%9D%B4%EC%A7%80&downloadUrl=https%3A%2F%2Fcodeload.github.com%2Fwnduddld0513%2Fdsh-purge-kr%2Ftar.gz%2Frefs%2Fheads%2Fmaster"><strong>Install in desktop client</strong></a>
 </p>
 
 **Step 3 — Restart the host.** Adding the plugin to a profile does **not** patch `@deepseek-ai` by itself. Fully quit and reopen the host you just installed into (Web: stop `dsh web` and start again; Desktop: quit the tray icon too, then open the exe).

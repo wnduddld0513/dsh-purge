@@ -1,4 +1,4 @@
-<p align="center"><strong>Version 1.1.86</strong></p>
+<p align="center"><strong>Version 1.1.87</strong></p>
 
 <p align="center">
   <em>DeepSeek Harness 탈옥: 모든 모델을 탈옥시킬 수 있고, 모델마다 다른 프롬프트를 쓸 수 있습니다. 기본 프롬프트는 국산 모델 "Little Code Sauce" 을 대상으로 합니다. Jailbreak for every model — swap prompts per model. Star 를 눌러 주세요 ⭐ 2차 개발을 하려면 저작자 표시 요구 사항 부분을 확인하세요</em>
@@ -52,7 +52,7 @@
 
 ## 소개
 
-**dsh-purge** 는 로컬에 설치된 공식 [DeepSeek Harness](https://www.deepseek.com/harness/) 에 올리는 사이버 보안 레드팀 평가 플러그인입니다. 현재 **1.1.86** 은 **DSH 0.2.1-rc.2** 에 맞춰져 있습니다(0.2.0 도 여전히 사용할 수 있습니다). 공식 **Web**(`dsh web`)과 공식 **데스크톱**(EXE)을 모두 지원하며, 양쪽은 따로 설치하고 따로 적용합니다.
+**dsh-purge** 는 로컬에 설치된 공식 [DeepSeek Harness](https://www.deepseek.com/harness/) 에 올리는 사이버 보안 레드팀 평가 플러그인입니다. 현재 **1.1.87** 은 **DSH 0.2.1-rc.2** 에 맞춰져 있습니다(0.2.0 도 여전히 사용할 수 있습니다). 공식 **Web**(`dsh web`)과 공식 **데스크톱**(EXE)을 모두 지원하며, 양쪽은 따로 설치하고 따로 적용합니다.
 
 Harness 는 문제를 모델에 넘기기만 하지 않습니다. 실행 중에 프롬프트, 승인 게이트, 샌드박스, 세션 형식까지 바꿉니다. "모델이 답하는지" 만 보면 호스트의 차단을 모델의 거부로 잘못 읽게 됩니다. 이 플러그인은 자신의 설치 환경에서 이 두 층을 분리해, 통제된 평가를 하고 기본 정책을 더 조여야 하는지 판단하는 데 씁니다.
 
@@ -128,9 +128,9 @@ Harness 는 문제를 모델에 넘기기만 하지 않습니다. 실행 중에 
 
 ## 지원 범위
 
-**1.1.86 은 DSH 0.2.1-rc.2 에 맞춰져 있습니다**, 0.2.0 도 여전히 사용할 수 있습니다. 0.1.x 에 대고 쓰지는 마세요.
+**1.1.87 은 DSH 0.2.1-rc.2 에 맞춰져 있습니다**, 0.2.0 도 여전히 사용할 수 있습니다. 0.1.x 에 대고 쓰지는 마세요.
 
-- **dsh 0.2.1-rc.2** (공식 데스크톱 / 공식 `dsh web`): **1.1.86** 을 사용합니다. `{{cwd}}` / `[cwd]` 전체 라운드 실패, 패치 #40 적용, `toolFilter` 사용 중단, `dsh-tools` 해석, hostFs fd, 데스크톱 패키지 교체 자살, `file:` 아카이브 업데이트, Ctrl+Enter 끼어들기를 수정했습니다.
+- **dsh 0.2.1-rc.2** (공식 데스크톱 / 공식 `dsh web`): **1.1.87** 을 사용합니다. `{{cwd}}` / `[cwd]` 전체 라운드 실패, 패치 #40 적용, `toolFilter` 사용 중단, `dsh-tools` 해석, hostFs fd, 데스크톱 패키지 교체 자살, `file:` 아카이브 업데이트, Ctrl+Enter 끼어들기를 수정했습니다.
 - **dsh 0.2.0-rc.2**: **1.1.40** 이상을 사용하세요. 이 페이지의 이 등급도 설치할 수 있습니다.
 - **dsh 0.1.7** (rc.1 / rc.2 포함): **1.1.39** 이하 버전을 사용하세요 — [Releases](https://github.com/wnduddld0513/dsh-purge-kr/releases) 에서 해당 태그를 고르면 됩니다.
 
@@ -188,7 +188,7 @@ node node_modules/dsh-purge/scripts/ensure-profile-bundle.mjs
 데스크톱 클라이언트에서는 버튼을 눌러도 됩니다(`dsh://` 로 호출하며, 내려받는 파일은 같은 압축 패키지입니다):
 
 <p align="center">
-  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.1.86&repo=wnduddld0513%2Fdsh-purge-kr&permissions=%EC%8B%9C%EC%8A%A4%ED%85%9C%20%ED%94%84%EB%A1%AC%ED%94%84%ED%8A%B8%20%EC%A3%BC%EC%9E%85%2C%EB%A1%9C%EC%BB%AC%20%ED%8C%A8%EC%B9%98%2C%EC%84%A4%EC%A0%95%20%ED%8E%98%EC%9D%B4%EC%A7%80&downloadUrl=https%3A%2F%2Fcodeload.github.com%2Fwnduddld0513%2Fdsh-purge-kr%2Ftar.gz%2Frefs%2Fheads%2Fmaster"><strong>클라이언트 호출로 원클릭 설치</strong></a>
+  <a href="dsh://plugin/install?id=dsh-purge&name=dsh-purge&version=1.1.87&repo=wnduddld0513%2Fdsh-purge-kr&permissions=%EC%8B%9C%EC%8A%A4%ED%85%9C%20%ED%94%84%EB%A1%AC%ED%94%84%ED%8A%B8%20%EC%A3%BC%EC%9E%85%2C%EB%A1%9C%EC%BB%AC%20%ED%8C%A8%EC%B9%98%2C%EC%84%A4%EC%A0%95%20%ED%8E%98%EC%9D%B4%EC%A7%80&downloadUrl=https%3A%2F%2Fcodeload.github.com%2Fwnduddld0513%2Fdsh-purge-kr%2Ftar.gz%2Frefs%2Fheads%2Fmaster"><strong>클라이언트 호출로 원클릭 설치</strong></a>
 </p>
 
 ### 3. 설치 후에도 세 가지를 더 해야 합니다

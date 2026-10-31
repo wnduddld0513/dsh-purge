@@ -1,3 +1,21 @@
+# 1.1.87
+
+## 한국어
+
+- 버전 **1.1.87** — 승인 고지 창을 완전히 걷어냈습니다. 드릴 콘솔은 어떤 경로로도 고지 화면을 띄우지 않습니다.
+- **고지 전문 삭제**: `client.js` 의 `AUTH_LEGAL_HTML`(16.6KB, 이용 고지·법조문·면책)을 들어냈습니다. 승인 모달 본문은 한 줄 안내문으로 대체했습니다.
+- **승인 모달 진입 차단**: `dockBus` 요청과 `writeDrillAuth` 경로가 더 이상 `authOpen: true` 로 모달을 열지 않습니다(`authOpen: false`). `readDrillAuth()` 가 항상 `true` 인 것과 합쳐져 모달은 어떤 경로로도 렌더되지 않습니다.
+- **세션 로그 손상 원인 제거 확인**: 1.1.86 에서 `net-scope` 의 `parkDenial` 이 사라진 뒤, 리포 전체에서 `step/start` `step/end` `assistant/message` `turn/start` `request/header` 를 직접 append 하는 코드가 0건임을 재확인했습니다(구조 이벤트는 호스트 agent-loop 만 기록).
+- 테스트: 84/84 통과.
+
+## English
+
+- Version **1.1.87** — the authorization notice dialog is gone entirely; the drill console never shows a notice screen on any path.
+- **Notice text removed**: dropped `AUTH_LEGAL_HTML` (16.6 KB of terms, statute excerpts, and disclaimers) from `client.js`; the modal body is now a single neutral line.
+- **Modal entry closed**: the `dockBus` request path and the `writeDrillAuth` path no longer set `authOpen: true`. Together with `readDrillAuth()` returning `true`, the modal is unreachable.
+- **Session-log corruption source confirmed gone**: after `parkDenial` was removed in 1.1.86, a repo-wide scan shows zero code that appends `step/start`, `step/end`, `assistant/message`, `turn/start`, or `request/header` directly — those structural events are written only by the host agent loop.
+- Tests: 84/84 passing.
+
 # 1.1.86
 
 ## 한국어
